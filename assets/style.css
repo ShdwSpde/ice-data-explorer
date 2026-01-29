@@ -303,6 +303,16 @@ body {
 .stat-row {
     max-width: 1400px;
     margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.stat-row > div {
+    flex: 1 1 auto;
+    min-width: 150px;
+    max-width: 200px;
 }
 
 .stat-card {
@@ -313,7 +323,8 @@ body {
     margin: 10px 5px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    min-width: 140px;
 }
 
 /* Accent stripe on hover */
@@ -342,15 +353,17 @@ body {
 
 .stat-value {
     font-family: var(--font-data);
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
     font-weight: 600;
     margin: 0;
-    line-height: 1.1;
+    line-height: 1.2;
     letter-spacing: -0.02em;
     background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    white-space: nowrap;
+    overflow: visible;
 }
 
 /* Accent colored values */
