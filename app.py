@@ -29,6 +29,7 @@ from pages.corporate_hydra import get_corporate_hydra_content
 from pages.media_pulse import get_media_pulse_content
 from pages.data_gaps import get_data_gaps_content
 from pages.profit_correlation import get_profit_correlation_content
+from pages.community_resources import get_community_resources_content
 from analysis.bayesian import get_bayesian_analysis_content
 
 # Initialize database if needed
@@ -1652,6 +1653,7 @@ app.layout = html.Div([
             dbc.Tab(label="Legislation", tab_id="tab-legislation"),
             dbc.Tab(label="Data Explorer", tab_id="tab-explorer"),
             dbc.Tab(label="Narratives", tab_id="tab-narratives"),
+            dbc.Tab(label="Resources", tab_id="tab-resources"),
             dbc.Tab(label="Methodology", tab_id="tab-methodology"),
         ], id="tabs", active_tab="tab-overview", className='nav-tabs-custom')
     ], className='nav-container'),
@@ -2800,6 +2802,9 @@ def render_tab_content(active_tab):
                 html.Div(id='narrative-content', className='narrative-content-area'),
             ], className='narratives-page-container')
         ])
+
+    elif active_tab == 'tab-resources':
+        return get_community_resources_content()
 
     elif active_tab == 'tab-methodology':
         return get_methodology_tab_content()

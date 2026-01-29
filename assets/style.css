@@ -4922,3 +4922,20 @@ input::placeholder {
 .sub-revenue {
     color: var(--text-muted);
 }
+
+/* Community Resources Page */
+.community-resources-page .resource-link-btn:hover {
+    background-color: var(--accent) !important;
+    color: white !important;
+}
+
+.community-resources-page .row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.community-resources-page .col-md-6,
+.community-resources-page .col-lg-4 {
+    display: flex;
+}
+
