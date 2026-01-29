@@ -1,0 +1,27 @@
+{
+  "name": "ICE Data Explorer",
+  "short_name": "ICE Data",
+  "description": "Interactive investigation into U.S. immigration detention & deportation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#e94560",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["news", "education"],
+  "lang": "en-US",
+  "dir": "ltr"
+}
