@@ -1600,15 +1600,17 @@ app.layout = html.Div([
     # Key Statistics Banner
     html.Div([
         html.Div([
-            html.H3("THE NUMBERS", className='section-label'),
-            dbc.Row([
-                dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated"), md=2),
-                dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high"), md=2),
-                dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees"), md=2),
-                dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year"), md=2),
-                dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)"), md=2),
-                dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate"), md=2),
-            ], className='stat-row'),
+            html.H3(id='stats-section-label', children="THE NUMBERS", className='section-label'),
+            html.Div(id='stats-cards-container', children=[
+                dbc.Row([
+                    dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated"), md=2),
+                    dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high"), md=2),
+                    dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees"), md=2),
+                    dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year"), md=2),
+                    dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)"), md=2),
+                    dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate"), md=2),
+                ], className='stat-row'),
+            ]),
         ], className='container-fluid')
     ], className='stats-banner'),
 
@@ -1656,8 +1658,10 @@ app.layout = html.Div([
 
     # Language Selector (fixed position)
     html.Div([
-        html.Button("EN", id='lang-en', className='lang-btn active', n_clicks=0),
-        html.Button("ES", id='lang-es', className='lang-btn', n_clicks=0),
+        html.Button("EN", id='lang-en', className='lang-btn active', n_clicks=0, title='English'),
+        html.Button("ES", id='lang-es', className='lang-btn', n_clicks=0, title='Español'),
+        html.Button("FR", id='lang-fr', className='lang-btn', n_clicks=0, title='Français'),
+        html.Button("中", id='lang-zh', className='lang-btn', n_clicks=0, title='中文'),
     ], className='lang-selector')
 ], className='app-container')
 
@@ -1716,32 +1720,56 @@ def update_freshness_indicator(active_tab):
 @callback(
     [Output('lang-en', 'className'),
      Output('lang-es', 'className'),
+     Output('lang-fr', 'className'),
+     Output('lang-zh', 'className'),
      Output('language-store', 'data')],
     [Input('lang-en', 'n_clicks'),
-     Input('lang-es', 'n_clicks')],
+     Input('lang-es', 'n_clicks'),
+     Input('lang-fr', 'n_clicks'),
+     Input('lang-zh', 'n_clicks')],
     [State('language-store', 'data')]
 )
-def update_language(en_clicks, es_clicks, current_lang):
+def update_language(en_clicks, es_clicks, fr_clicks, zh_clicks, current_lang):
     """Handle language selection."""
     from dash import ctx
     triggered = ctx.triggered_id
 
-    if triggered == 'lang-es':
-        return 'lang-btn', 'lang-btn active', 'es'
-    else:
-        return 'lang-btn active', 'lang-btn', 'en'
+    lang_map = {
+        'lang-en': 'en',
+        'lang-es': 'es',
+        'lang-fr': 'fr',
+        'lang-zh': 'zh',
+    }
+
+    selected = lang_map.get(triggered, 'en')
+    classes = ['lang-btn active' if lang_map[f'lang-{l}'] == selected else 'lang-btn' for l in ['en', 'es', 'fr', 'zh']]
+    return classes[0], classes[1], classes[2], classes[3], selected
 
 
 @callback(
     [Output('main-title', 'children'),
-     Output('subtitle', 'children')],
+     Output('subtitle', 'children'),
+     Output('stats-section-label', 'children'),
+     Output('stats-cards-container', 'children')],
     Input('language-store', 'data')
 )
 def update_header_text(lang):
-    """Update header text based on language."""
+    """Update header and stats text based on language."""
     title = get_translation('title.main', lang)
     subtitle = get_translation('title.subtitle', lang)
-    return title, subtitle
+    section_label = get_translation('section.the_numbers', lang)
+
+    # Translated stat cards
+    stats_row = dbc.Row([
+        dbc.Col(create_key_stat_card("$170B", get_translation('stat.budget', lang), get_translation('stat.largest_ever', lang)), md=2),
+        dbc.Col(create_key_stat_card("73,000", get_translation('stat.detained', lang), get_translation('stat.record_high', lang)), md=2),
+        dbc.Col(create_key_stat_card("73%", get_translation('stat.no_criminal', lang), get_translation('stat.of_detainees', lang)), md=2),
+        dbc.Col(create_key_stat_card("32", get_translation('stat.deaths', lang), get_translation('stat.3x_previous', lang)), md=2),
+        dbc.Col(create_key_stat_card("765%", get_translation('stat.budget_increase', lang), get_translation('stat.since_1994', lang)), md=2),
+        dbc.Col(create_key_stat_card("$70,236", get_translation('stat.cost_deportation', lang), get_translation('stat.avg_estimate', lang)), md=2),
+    ], className='stat-row')
+
+    return title, subtitle, section_label, stats_row
 
 
 @callback(

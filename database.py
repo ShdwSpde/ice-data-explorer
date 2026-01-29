@@ -1382,6 +1382,60 @@ def seed_data():
         # Important notices
         ('notice.disclaimer', 'en', 'This dashboard is for informational purposes. Data represents publicly available information compiled from multiple sources.'),
         ('notice.disclaimer', 'es', 'Este panel es solo para fines informativos. Los datos representan información pública recopilada de múltiples fuentes.'),
+
+        # Stat card subtexts
+        ('stat.largest_ever', 'en', 'Largest ever allocated'),
+        ('stat.largest_ever', 'es', 'Mayor asignación histórica'),
+        ('stat.record_high', 'en', 'Record high'),
+        ('stat.record_high', 'es', 'Récord histórico'),
+        ('stat.of_detainees', 'en', 'Of all detainees'),
+        ('stat.of_detainees', 'es', 'De todos los detenidos'),
+        ('stat.3x_previous', 'en', '3x previous year'),
+        ('stat.3x_previous', 'es', '3x año anterior'),
+        ('stat.since_1994', 'en', 'Since 1994 (adj.)'),
+        ('stat.since_1994', 'es', 'Desde 1994 (ajust.)'),
+        ('stat.avg_estimate', 'en', 'Average estimate'),
+        ('stat.avg_estimate', 'es', 'Estimación promedio'),
+
+        # Section headers
+        ('section.the_numbers', 'en', 'THE NUMBERS'),
+        ('section.the_numbers', 'es', 'LOS NÚMEROS'),
+        ('section.key_findings', 'en', 'KEY FINDINGS'),
+        ('section.key_findings', 'es', 'HALLAZGOS CLAVE'),
+
+        # French translations
+        ('title.main', 'fr', "LE COÛT DE L'APPLICATION"),
+        ('title.subtitle', 'fr', "Une enquête interactive sur la détention et l'expulsion des immigrants aux États-Unis"),
+        ('stat.budget', 'fr', 'Budget 2025'),
+        ('stat.detained', 'fr', 'Actuellement détenus'),
+        ('stat.no_criminal', 'fr', 'Sans casier judiciaire'),
+        ('stat.deaths', 'fr', 'Décès en 2025'),
+        ('stat.budget_increase', 'fr', 'Augmentation du budget'),
+        ('stat.cost_deportation', 'fr', 'Coût par expulsion'),
+        ('stat.largest_ever', 'fr', 'Plus grande allocation'),
+        ('stat.record_high', 'fr', 'Record historique'),
+        ('stat.of_detainees', 'fr', 'De tous les détenus'),
+        ('stat.3x_previous', 'fr', "3x l'année précédente"),
+        ('stat.since_1994', 'fr', 'Depuis 1994 (ajust.)'),
+        ('stat.avg_estimate', 'fr', 'Estimation moyenne'),
+        ('section.the_numbers', 'fr', 'LES CHIFFRES'),
+
+        # Chinese translations (Simplified)
+        ('title.main', 'zh', '执法成本'),
+        ('title.subtitle', 'zh', '美国移民拘留与驱逐的互动调查'),
+        ('stat.budget', 'zh', '2025年预算'),
+        ('stat.detained', 'zh', '目前被拘留'),
+        ('stat.no_criminal', 'zh', '无犯罪记录'),
+        ('stat.deaths', 'zh', '2025年死亡'),
+        ('stat.budget_increase', 'zh', '预算增长'),
+        ('stat.cost_deportation', 'zh', '每次驱逐成本'),
+        ('stat.largest_ever', 'zh', '历史最高拨款'),
+        ('stat.record_high', 'zh', '历史新高'),
+        ('stat.of_detainees', 'zh', '所有被拘留者中'),
+        ('stat.3x_previous', 'zh', '是去年的3倍'),
+        ('stat.since_1994', 'zh', '自1994年以来'),
+        ('stat.avg_estimate', 'zh', '平均估计'),
+        ('section.the_numbers', 'zh', '数据'),
     ]
 
     for trans in translations_data:
