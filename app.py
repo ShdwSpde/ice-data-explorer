@@ -1220,11 +1220,26 @@ def get_methodology_tab_content():
                         html.Strong("Perspective: "), source.get('political_lean', 'N/A')
                     ], style={'fontSize': '0.85rem', 'marginBottom': '5px'}),
                     html.P([
+                        html.Strong("Source URL: "),
+                        html.A(source.get('url', 'N/A'), href=source.get('url', '#'), target='_blank',
+                               style={'color': COLORS['accent'], 'textDecoration': 'underline'})
+                        if source.get('url') else html.Span('N/A')
+                    ], style={'fontSize': '0.85rem', 'marginBottom': '5px'}),
+                    html.P([
+                        html.Strong("Archive: "),
+                        html.A("View archived version", href=source.get('archive_url', '#'), target='_blank',
+                               style={'color': COLORS['blue'], 'textDecoration': 'underline'})
+                        if source.get('archive_url') else html.Span('No archive available', style={'color': COLORS['text_muted']})
+                    ], style={'fontSize': '0.85rem', 'marginBottom': '5px'}),
+                    html.P([
                         html.Strong("Methodology: "), source.get('methodology_notes', 'N/A')
                     ], style={'fontSize': '0.85rem', 'marginBottom': '5px', 'color': COLORS['text_muted']}),
                     html.P([
                         html.Strong("Known Limitations: "), source.get('known_limitations', 'None documented')
                     ], style={'fontSize': '0.85rem', 'marginBottom': '5px', 'color': COLORS['warning']}),
+                    html.P([
+                        html.Strong("Last Verified: "), source.get('last_verified', 'Unknown')
+                    ], style={'fontSize': '0.85rem', 'marginBottom': '5px', 'color': COLORS['text_muted']}),
                     html.P([
                         html.Strong("Recommended Use: "), source.get('recommended_use', 'General reference')
                     ], style={'fontSize': '0.85rem', 'marginBottom': '0', 'color': COLORS['success']})
@@ -1281,6 +1296,11 @@ def get_methodology_tab_content():
                     }),
                     html.Span(' ✓', style={'fontSize': '0.8rem', 'color': '#28a745'})
                 ] if item.get('independent_figure') else '—'),
+                html.Td(
+                    html.A('View Source ↗', href=item.get('methodology_url', '#'), target='_blank',
+                           style={'color': COLORS['accent'], 'fontSize': '0.8rem'})
+                    if item.get('methodology_url') else html.Span('—', style={'color': COLORS['text_muted']})
+                ),
                 html.Td(item.get('caveats', '')[:100] + '...' if item.get('caveats') and len(item.get('caveats', '')) > 100 else item.get('caveats', '—'),
                        style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
             ], style={'backgroundColor': 'rgba(255,193,7,0.1)' if has_discrepancy else 'transparent'})
@@ -1425,6 +1445,7 @@ def get_methodology_tab_content():
                                 html.Th("Status"),
                                 html.Th("Gov't Figure"),
                                 html.Th("Independent"),
+                                html.Th("Source"),
                                 html.Th("Caveats")
                             ])
                         ], style={'backgroundColor': COLORS['grid']}),
