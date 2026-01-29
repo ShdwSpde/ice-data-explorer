@@ -162,7 +162,7 @@ def get_taxpayer_receipt_content():
 
                 html.Div([
                     html.Label("Filing Status", className='input-label'),
-                    dcc.Dropdown(
+                    dbc.Select(
                         id='receipt-status',
                         options=[
                             {'label': 'Single', 'value': 'single'},
@@ -170,8 +170,7 @@ def get_taxpayer_receipt_content():
                             {'label': 'Head of Household', 'value': 'hoh'},
                         ],
                         value='single',
-                        clearable=False,
-                        className='receipt-dropdown'
+                        className='receipt-select'
                     ),
                 ], className='input-group'),
 
