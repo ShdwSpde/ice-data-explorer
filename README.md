@@ -6,7 +6,7 @@ An interactive journalism-style dashboard for exploring U.S. immigration enforce
 
 ## Live Demo
 
-🌐 **[View Live Site](https://ice-data-explorer.onrender.com)** *(Update with your deployed URL)*
+🌐 **[View Live Site](https://ice-data-explorer.onrender.com)** 
 
 ## Features
 
@@ -47,27 +47,7 @@ pip install -r requirements.txt
 python3 app.py
 ```
 
-Open **http://localhost:8050** in your browser.
 
-## Deployment
-
-### Deploy to Render (Free)
-
-1. Fork this repository
-2. Create a [Render account](https://render.com)
-3. Click "New" → "Blueprint" → Connect your GitHub repo
-4. Render will automatically detect `render.yaml` and deploy
-
-The free tier includes:
-- 750 hours/month of runtime
-- Auto-deploy on git push
-- Custom domains supported
-
-### Alternative Platforms
-
-- **Railway**: `railway up` (free tier available)
-- **Fly.io**: `fly deploy` (free tier available)
-- **PythonAnywhere**: Upload files via web interface
 
 ## Data Sources
 
