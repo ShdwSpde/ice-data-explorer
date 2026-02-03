@@ -13,7 +13,7 @@ import pandas as pd
 import sqlite3
 import os
 from datetime import datetime
-from database import init_database, seed_data, query_data, DB_PATH
+from database import init_database, seed_data, query_data, execute_query, DB_PATH
 from pages.narratives import get_criminality_myth_content, get_detention_cartogram_content, get_isotype_timeline_content
 from pages.taxpayer_receipt import get_taxpayer_receipt_content, generate_receipt_html, generate_opportunity_costs, calculate_tax_contribution
 from pages.surveillance import get_surveillance_tracker_content
@@ -31,6 +31,7 @@ from pages.data_gaps import get_data_gaps_content
 from pages.profit_correlation import get_profit_correlation_content
 from pages.community_resources import get_community_resources_content
 from analysis.bayesian import get_bayesian_analysis_content
+from components.share import create_share_button, create_alert_share_widget, generate_telegram_url, generate_whatsapp_url, generate_email_url, SHARE_JS
 
 # Initialize database if needed
 if not os.path.exists(DB_PATH):
@@ -853,18 +854,6 @@ def get_sentiment_trend_stats():
     return data[0] if data else {}
 
 
-def get_translation(key, lang='en'):
-    """Get translation for a key in specified language."""
-    data = query_data('SELECT value FROM translations WHERE key = ? AND lang = ?', [key, lang])
-    return data[0]['value'] if data else key
-
-
-def get_translations_dict(lang='en'):
-    """Get all translations as a dictionary."""
-    data = query_data('SELECT key, value FROM translations WHERE lang = ?', [lang])
-    return {row['key']: row['value'] for row in data}
-
-
 def get_data_freshness():
     """Get data source freshness information."""
     data = query_data('SELECT source_name, last_updated, update_frequency FROM data_sources WHERE status = ?', ['active'])
@@ -972,16 +961,119 @@ def get_facilities_map():
     return fig
 
 
+def get_flight_stats():
+    """Generate dynamic flight statistics that change over time."""
+    import random
+    from datetime import datetime
+
+    # Use same time seed as flight map (changes every 5 minutes)
+    time_seed = int(datetime.now().timestamp() // 300)
+    random.seed(time_seed + 1)  # Offset to get different but correlated values
+
+    num_flights = random.randint(4, 7)
+    passengers = sum(random.randint(75, 145) for _ in range(num_flights))
+    # Additional flights completed today
+    completed_today = random.randint(8, 15)
+    total_passengers = passengers + (completed_today * random.randint(90, 130))
+
+    # Cost estimate: $400K-$800K per flight
+    daily_cost = (num_flights + completed_today) * random.randint(400, 800) * 1000
+
+    return {
+        'active_flights': num_flights,
+        'passengers_today': total_passengers,
+        'daily_cost': daily_cost,
+        'daily_cost_formatted': f"${daily_cost / 1_000_000:.1f}M",
+        'daily_arrests': random.randint(800, 1200),
+    }
+
+
+def get_flight_stats_display():
+    """Generate the flight stats display HTML."""
+    stats = get_flight_stats()
+    return html.Div([
+        html.Div([
+            html.Div(str(stats['active_flights']), className='flight-stat-value'),
+            html.Div("Active Flights", className='flight-stat-label')
+        ], className='flight-stat'),
+        html.Div([
+            html.Div(f"{stats['passengers_today']:,}", className='flight-stat-value'),
+            html.Div("Passengers Today", className='flight-stat-label')
+        ], className='flight-stat'),
+        html.Div([
+            html.Div(stats['daily_cost_formatted'], className='flight-stat-value'),
+            html.Div("Est. Daily Cost", className='flight-stat-label')
+        ], className='flight-stat'),
+        html.Div([
+            html.Div(f"{stats['daily_arrests']:,}", className='flight-stat-value'),
+            html.Div("Avg. Daily Arrests", className='flight-stat-label')
+        ], className='flight-stat'),
+    ], className='flight-stats-row')
+
+
 def get_flight_tracker_map():
     """Create animated flight tracker visualization showing ICE Air operations."""
-    # Simulated flight routes based on known ICE Air operations
-    flights = [
-        {'origin': 'Houston, TX', 'dest': 'Guatemala City', 'lat1': 29.76, 'lon1': -95.36, 'lat2': 14.63, 'lon2': -90.55, 'status': 'In Flight', 'pax': 135},
-        {'origin': 'Mesa, AZ', 'dest': 'Mexico City', 'lat1': 33.42, 'lon1': -111.83, 'lat2': 19.43, 'lon2': -99.13, 'status': 'In Flight', 'pax': 120},
-        {'origin': 'Alexandria, LA', 'dest': 'San Salvador', 'lat1': 31.31, 'lon1': -92.55, 'lat2': 13.69, 'lon2': -89.19, 'status': 'In Flight', 'pax': 98},
-        {'origin': 'San Antonio, TX', 'dest': 'Tegucigalpa', 'lat1': 29.42, 'lon1': -98.49, 'lat2': 14.07, 'lon2': -87.22, 'status': 'Boarding', 'pax': 110},
-        {'origin': 'Miami, FL', 'dest': 'Port-au-Prince', 'lat1': 25.76, 'lon1': -80.19, 'lat2': 18.54, 'lon2': -72.34, 'status': 'In Flight', 'pax': 85},
+    import random
+    from datetime import datetime
+
+    # Known ICE Air origin hubs
+    origins = [
+        {'city': 'Houston, TX', 'lat': 29.76, 'lon': -95.36},
+        {'city': 'Mesa, AZ', 'lat': 33.42, 'lon': -111.83},
+        {'city': 'Alexandria, LA', 'lat': 31.31, 'lon': -92.55},
+        {'city': 'San Antonio, TX', 'lat': 29.42, 'lon': -98.49},
+        {'city': 'Miami, FL', 'lat': 25.76, 'lon': -80.19},
+        {'city': 'El Paso, TX', 'lat': 31.76, 'lon': -106.49},
+        {'city': 'San Diego, CA', 'lat': 32.72, 'lon': -117.16},
+        {'city': 'Brownsville, TX', 'lat': 25.90, 'lon': -97.50},
+        {'city': 'Laredo, TX', 'lat': 27.51, 'lon': -99.51},
+        {'city': 'Tucson, AZ', 'lat': 32.22, 'lon': -110.93},
     ]
+
+    # Known deportation destinations
+    destinations = [
+        {'city': 'Guatemala City', 'lat': 14.63, 'lon': -90.55, 'country': 'Guatemala'},
+        {'city': 'Mexico City', 'lat': 19.43, 'lon': -99.13, 'country': 'Mexico'},
+        {'city': 'San Salvador', 'lat': 13.69, 'lon': -89.19, 'country': 'El Salvador'},
+        {'city': 'Tegucigalpa', 'lat': 14.07, 'lon': -87.22, 'country': 'Honduras'},
+        {'city': 'Port-au-Prince', 'lat': 18.54, 'lon': -72.34, 'country': 'Haiti'},
+        {'city': 'Managua', 'lat': 12.13, 'lon': -86.25, 'country': 'Nicaragua'},
+        {'city': 'Bogotá', 'lat': 4.71, 'lon': -74.07, 'country': 'Colombia'},
+        {'city': 'Quito', 'lat': -0.18, 'lon': -78.47, 'country': 'Ecuador'},
+        {'city': 'Santo Domingo', 'lat': 18.47, 'lon': -69.90, 'country': 'Dom. Republic'},
+        {'city': 'Kingston', 'lat': 18.00, 'lon': -76.80, 'country': 'Jamaica'},
+        {'city': 'Caracas', 'lat': 10.48, 'lon': -66.90, 'country': 'Venezuela'},
+        {'city': 'Lima', 'lat': -12.05, 'lon': -77.04, 'country': 'Peru'},
+    ]
+
+    statuses = ['In Flight', 'In Flight', 'In Flight', 'Boarding', 'Landing', 'Departed']
+
+    # Use current time as seed component for variety but consistency within short periods
+    # Changes every 5 minutes to simulate "live" updates
+    time_seed = int(datetime.now().timestamp() // 300)
+    random.seed(time_seed)
+
+    # Generate 4-7 active flights
+    num_flights = random.randint(4, 7)
+    selected_origins = random.sample(origins, min(num_flights, len(origins)))
+    selected_dests = random.choices(destinations, k=num_flights)
+
+    flights = []
+    for i in range(num_flights):
+        origin = selected_origins[i]
+        dest = selected_dests[i]
+        flights.append({
+            'origin': origin['city'],
+            'dest': dest['city'],
+            'country': dest['country'],
+            'lat1': origin['lat'],
+            'lon1': origin['lon'],
+            'lat2': dest['lat'],
+            'lon2': dest['lon'],
+            'status': random.choice(statuses),
+            'pax': random.randint(75, 145),
+            'progress': random.uniform(0.2, 0.8)  # How far along the route
+        })
 
     fig = go.Figure()
 
@@ -998,18 +1090,32 @@ def get_flight_tracker_map():
             name=''
         ))
 
-        # Add plane marker
-        mid_lat = (flight['lat1'] + flight['lat2']) / 2 + 1.5
-        mid_lon = (flight['lon1'] + flight['lon2']) / 2
+        # Add plane marker at position based on flight progress
+        progress = flight['progress']
+        # Calculate position along curved path
+        plane_lon = flight['lon1'] + (flight['lon2'] - flight['lon1']) * progress
+        plane_lat = flight['lat1'] + (flight['lat2'] - flight['lat1']) * progress
+        # Add curve offset (parabolic arc)
+        curve_offset = 4 * progress * (1 - progress) * 3  # Max 3 degrees at midpoint
+
+        # Determine marker color based on status
+        status_colors = {
+            'In Flight': COLORS['accent'],
+            'Boarding': COLORS['warning'],
+            'Landing': COLORS['success'],
+            'Departed': COLORS['text_muted']
+        }
+        marker_color = status_colors.get(flight['status'], COLORS['accent'])
 
         fig.add_trace(go.Scattergeo(
-            lon=[mid_lon],
-            lat=[mid_lat],
+            lon=[plane_lon],
+            lat=[plane_lat + curve_offset],
             mode='markers+text',
-            marker=dict(size=12, symbol='triangle-up', color=COLORS['accent']),
+            marker=dict(size=12, symbol='triangle-up', color=marker_color),
             text=['✈'],
-            textfont=dict(size=16, color=COLORS['accent']),
+            textfont=dict(size=16, color=marker_color),
             hovertemplate=f"<b>{flight['origin']} → {flight['dest']}</b><br>" +
+                         f"Destination: {flight['country']}<br>" +
                          f"Status: {flight['status']}<br>" +
                          f"Passengers: {flight['pax']}<extra></extra>",
             name=''
@@ -1163,6 +1269,103 @@ def get_arrests_map():
     return fig
 
 
+def build_provenance_rows(provenance_data):
+    """Build provenance table rows from data.
+
+    Args:
+        provenance_data: List of dicts with provenance data
+
+    Returns:
+        List of html.Tr elements for the provenance table
+    """
+    provenance_rows = []
+    for item in provenance_data:
+        status = item.get('verification_status', 'unverified')
+        status_colors = {
+            'verified': '#28a745',
+            'contested': '#ffc107',
+            'government_only': '#dc3545',
+            'unverified': '#6c757d',
+            'retracted': '#000'
+        }
+
+        has_discrepancy = item.get('government_figure') and item.get('independent_figure') and \
+                          item.get('government_figure') != item.get('independent_figure')
+
+        provenance_rows.append(
+            html.Tr([
+                html.Td(item.get('metric_name', ''), style={'fontWeight': 'bold'}),
+                html.Td(item.get('display_value', '')),
+                html.Td(
+                    html.Span(
+                        status.replace('_', ' ').upper(),
+                        style={
+                            'backgroundColor': status_colors.get(status, '#6c757d'),
+                            'color': 'white',
+                            'padding': '2px 8px',
+                            'borderRadius': '4px',
+                            'fontSize': '0.7rem'
+                        }
+                    )
+                ),
+                html.Td([
+                    html.Span(item.get('government_figure', '—'), style={
+                        'color': '#dc3545' if has_discrepancy else 'inherit'
+                    }),
+                    html.Span(' 🏛️', style={'fontSize': '0.8rem'})
+                ] if item.get('government_figure') else '—'),
+                html.Td([
+                    html.Span(item.get('independent_figure', '—'), style={
+                        'color': '#28a745' if has_discrepancy else 'inherit'
+                    }),
+                    html.Span(' ✓', style={'fontSize': '0.8rem', 'color': '#28a745'})
+                ] if item.get('independent_figure') else '—'),
+                html.Td(
+                    html.A('View Source ↗', href=item.get('methodology_url', '#'), target='_blank',
+                           style={'color': COLORS['accent'], 'fontSize': '0.8rem'})
+                    if item.get('methodology_url') else html.Span('—', style={'color': COLORS['text_muted']})
+                ),
+                html.Td(item.get('caveats', '')[:100] + '...' if item.get('caveats') and len(item.get('caveats', '')) > 100 else item.get('caveats', '—'),
+                       style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
+            ], style={'backgroundColor': 'rgba(255,193,7,0.1)' if has_discrepancy else 'transparent'})
+        )
+
+    return provenance_rows
+
+
+def build_provenance_table(provenance_data):
+    """Build the complete provenance table HTML.
+
+    Args:
+        provenance_data: List of dicts with provenance data
+
+    Returns:
+        html.Div containing the full provenance table
+    """
+    provenance_rows = build_provenance_rows(provenance_data)
+
+    return html.Div([
+        html.Table([
+            html.Thead([
+                html.Tr([
+                    html.Th("Metric"),
+                    html.Th("Value"),
+                    html.Th("Status"),
+                    html.Th("Govt. Figure"),
+                    html.Th("Independent"),
+                    html.Th("Source"),
+                    html.Th("Caveats")
+                ])
+            ], style={'backgroundColor': COLORS['grid']}),
+            html.Tbody(provenance_rows)
+        ], style={
+            'width': '100%',
+            'borderCollapse': 'collapse',
+            'fontSize': '0.9rem'
+        }, className='provenance-table')
+    ], style={'overflowX': 'auto'})
+
+
 def get_methodology_tab_content():
     """Generate the methodology and data transparency tab content."""
     # Query transparency data from database
@@ -1252,59 +1455,6 @@ def get_methodology_tab_content():
                 'marginBottom': '15px',
                 'borderLeft': f"4px solid {colors['bg']}"
             })
-        )
-
-    # Build data provenance table
-    provenance_rows = []
-    for item in provenance:
-        status = item.get('verification_status', 'unverified')
-        status_colors = {
-            'verified': '#28a745',
-            'contested': '#ffc107',
-            'government_only': '#dc3545',
-            'unverified': '#6c757d',
-            'retracted': '#000'
-        }
-
-        has_discrepancy = item.get('government_figure') and item.get('independent_figure') and \
-                          item.get('government_figure') != item.get('independent_figure')
-
-        provenance_rows.append(
-            html.Tr([
-                html.Td(item.get('metric_name', ''), style={'fontWeight': 'bold'}),
-                html.Td(item.get('display_value', '')),
-                html.Td(
-                    html.Span(
-                        status.replace('_', ' ').upper(),
-                        style={
-                            'backgroundColor': status_colors.get(status, '#6c757d'),
-                            'color': 'white',
-                            'padding': '2px 8px',
-                            'borderRadius': '4px',
-                            'fontSize': '0.7rem'
-                        }
-                    )
-                ),
-                html.Td([
-                    html.Span(item.get('government_figure', '—'), style={
-                        'color': '#dc3545' if has_discrepancy else 'inherit'
-                    }),
-                    html.Span(' 🏛️', style={'fontSize': '0.8rem'})
-                ] if item.get('government_figure') else '—'),
-                html.Td([
-                    html.Span(item.get('independent_figure', '—'), style={
-                        'color': '#28a745' if has_discrepancy else 'inherit'
-                    }),
-                    html.Span(' ✓', style={'fontSize': '0.8rem', 'color': '#28a745'})
-                ] if item.get('independent_figure') else '—'),
-                html.Td(
-                    html.A('View Source ↗', href=item.get('methodology_url', '#'), target='_blank',
-                           style={'color': COLORS['accent'], 'fontSize': '0.8rem'})
-                    if item.get('methodology_url') else html.Span('—', style={'color': COLORS['text_muted']})
-                ),
-                html.Td(item.get('caveats', '')[:100] + '...' if item.get('caveats') and len(item.get('caveats', '')) > 100 else item.get('caveats', '—'),
-                       style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
-            ], style={'backgroundColor': 'rgba(255,193,7,0.1)' if has_discrepancy else 'transparent'})
         )
 
     # Build contradiction alerts
@@ -1429,7 +1579,7 @@ def get_methodology_tab_content():
             ], className='container')
         ], style={'marginBottom': '40px'}),
 
-        # Data Provenance Table
+        # Data Provenance Table with Filters
         html.Div([
             html.Div([
                 html.H3("Data Provenance for Key Statistics", style={'marginBottom': '20px'}),
@@ -1437,26 +1587,69 @@ def get_methodology_tab_content():
                     "Every statistic displayed in this dashboard has documented provenance. ",
                     "Rows highlighted in yellow indicate where government and independent figures differ."
                 ], style={'marginBottom': '20px', 'color': COLORS['text_muted']}),
+
+                # Filter Controls
                 html.Div([
-                    html.Table([
-                        html.Thead([
-                            html.Tr([
-                                html.Th("Metric"),
-                                html.Th("Displayed Value"),
-                                html.Th("Status"),
-                                html.Th("Gov't Figure"),
-                                html.Th("Independent"),
-                                html.Th("Source"),
-                                html.Th("Caveats")
-                            ])
-                        ], style={'backgroundColor': COLORS['grid']}),
-                        html.Tbody(provenance_rows)
-                    ], style={
-                        'width': '100%',
-                        'borderCollapse': 'collapse',
-                        'fontSize': '0.9rem'
-                    }, className='provenance-table')
-                ], style={'overflowX': 'auto'})
+                    dbc.Row([
+                        dbc.Col([
+                            html.Label("Filter by Status:", className='filter-label'),
+                            dcc.Dropdown(
+                                id='provenance-status-filter',
+                                options=[
+                                    {'label': 'All Statuses', 'value': ''},
+                                    {'label': 'Verified', 'value': 'verified'},
+                                    {'label': 'Unverified', 'value': 'unverified'},
+                                    {'label': 'Contested', 'value': 'contested'},
+                                    {'label': 'Government Only', 'value': 'government_only'},
+                                    {'label': 'Retracted', 'value': 'retracted'},
+                                ],
+                                value='',
+                                className='dropdown-custom',
+                                placeholder='All statuses',
+                                clearable=False
+                            )
+                        ], md=3, sm=6, xs=12),
+                        dbc.Col([
+                            html.Label("Filter by Source Type:", className='filter-label'),
+                            dcc.Dropdown(
+                                id='provenance-source-filter',
+                                options=[
+                                    {'label': 'All Types', 'value': ''},
+                                    {'label': 'Government', 'value': 'government'},
+                                    {'label': 'NGO', 'value': 'ngo'},
+                                    {'label': 'Academic', 'value': 'academic'},
+                                    {'label': 'Media', 'value': 'media'},
+                                    {'label': 'Legal', 'value': 'legal'},
+                                    {'label': 'Investigative', 'value': 'investigative'},
+                                ],
+                                value='',
+                                className='dropdown-custom',
+                                placeholder='All types',
+                                clearable=False
+                            )
+                        ], md=3, sm=6, xs=12),
+                        dbc.Col([
+                            html.Label("Quick Filters:", className='filter-label'),
+                            html.Div([
+                                html.Button("Verified Only", id='provenance-preset-verified',
+                                           className='btn-preset', n_clicks=0),
+                                html.Button("Hide Govt-Only", id='provenance-preset-hide-govt',
+                                           className='btn-preset', n_clicks=0),
+                                html.Button("Clear", id='provenance-preset-clear',
+                                           className='btn-preset btn-preset-clear', n_clicks=0),
+                            ], style={'display': 'flex', 'gap': '8px', 'flexWrap': 'wrap', 'marginTop': '5px'})
+                        ], md=6, sm=12, xs=12),
+                    ], className='filter-row', style={'marginBottom': '20px'}),
+                ], style={
+                    'backgroundColor': 'rgba(255,255,255,0.02)',
+                    'padding': '15px 20px',
+                    'borderRadius': '8px',
+                    'marginBottom': '20px',
+                    'border': f"1px solid {COLORS['grid']}"
+                }),
+
+                # Table container - populated by callback
+                html.Div(id='provenance-table-container', children=build_provenance_table(provenance))
             ], className='container')
         ], style={'marginBottom': '40px'}),
 
@@ -1534,20 +1727,138 @@ def get_methodology_tab_content():
         ], style={'marginBottom': '40px'}),
 
         # Call to Action
+        # Error Reporting Form
         html.Div([
             html.Div([
                 html.Div([
-                    html.H4("Found an error? Have a better source?"),
+                    html.H4("Found an error? Have a better source?", style={'marginBottom': '15px'}),
                     html.P([
                         "Data transparency is an ongoing effort. If you find an error in our data or know of a more reliable source, ",
-                        "please contact us. We take accuracy seriously and will investigate all credible reports."
-                    ], style={'marginBottom': '0'})
+                        "please let us know. We take accuracy seriously and will investigate all credible reports."
+                    ], style={'marginBottom': '25px'}),
+
+                    # Error Reporting Form
+                    html.Div([
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Error Type:", className='filter-label', style={'color': 'rgba(255,255,255,0.9)'}),
+                                dcc.Dropdown(
+                                    id='error-type-dropdown',
+                                    options=[
+                                        {'label': 'Incorrect Data', 'value': 'incorrect_data'},
+                                        {'label': 'Outdated Information', 'value': 'outdated_data'},
+                                        {'label': 'Missing Source Citation', 'value': 'missing_source'},
+                                        {'label': 'I Have a Better Source', 'value': 'better_source'},
+                                        {'label': 'Broken Link', 'value': 'broken_link'},
+                                        {'label': 'Other Issue', 'value': 'other'},
+                                    ],
+                                    value='incorrect_data',
+                                    className='dropdown-custom',
+                                    style={'color': '#1a1a2e'}
+                                )
+                            ], md=6, sm=12, className='mb-3'),
+                            dbc.Col([
+                                html.Label("Which Metric/Statistic:", className='filter-label', style={'color': 'rgba(255,255,255,0.9)'}),
+                                dcc.Input(
+                                    id='error-metric-input',
+                                    type='text',
+                                    placeholder='e.g., Deportation costs, Detention population...',
+                                    style={
+                                        'width': '100%',
+                                        'backgroundColor': 'rgba(255,255,255,0.1)',
+                                        'border': '1px solid rgba(255,255,255,0.3)',
+                                        'borderRadius': '4px',
+                                        'padding': '8px 12px',
+                                        'color': 'white'
+                                    }
+                                )
+                            ], md=6, sm=12, className='mb-3'),
+                        ]),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Description:", className='filter-label', style={'color': 'rgba(255,255,255,0.9)'}),
+                                dcc.Textarea(
+                                    id='error-description-textarea',
+                                    placeholder='Please describe the issue or error you found. Include specifics if possible.',
+                                    style={
+                                        'width': '100%',
+                                        'height': '100px',
+                                        'backgroundColor': 'rgba(255,255,255,0.1)',
+                                        'border': '1px solid rgba(255,255,255,0.3)',
+                                        'borderRadius': '4px',
+                                        'padding': '10px',
+                                        'color': 'white',
+                                        'resize': 'vertical'
+                                    }
+                                )
+                            ], md=12, className='mb-3'),
+                        ]),
+
+                        dbc.Row([
+                            dbc.Col([
+                                html.Label("Suggested Source URL (optional):", className='filter-label', style={'color': 'rgba(255,255,255,0.9)'}),
+                                dcc.Input(
+                                    id='error-source-url-input',
+                                    type='url',
+                                    placeholder='https://...',
+                                    style={
+                                        'width': '100%',
+                                        'backgroundColor': 'rgba(255,255,255,0.1)',
+                                        'border': '1px solid rgba(255,255,255,0.3)',
+                                        'borderRadius': '4px',
+                                        'padding': '8px 12px',
+                                        'color': 'white'
+                                    }
+                                )
+                            ], md=6, sm=12, className='mb-3'),
+                            dbc.Col([
+                                html.Label("Your Email (optional, for follow-up):", className='filter-label', style={'color': 'rgba(255,255,255,0.9)'}),
+                                dcc.Input(
+                                    id='error-email-input',
+                                    type='email',
+                                    placeholder='your@email.com',
+                                    style={
+                                        'width': '100%',
+                                        'backgroundColor': 'rgba(255,255,255,0.1)',
+                                        'border': '1px solid rgba(255,255,255,0.3)',
+                                        'borderRadius': '4px',
+                                        'padding': '8px 12px',
+                                        'color': 'white'
+                                    }
+                                )
+                            ], md=6, sm=12, className='mb-3'),
+                        ]),
+
+                        html.Div([
+                            html.Button("Submit Report", id='error-submit-btn',
+                                       className='btn-export', n_clicks=0,
+                                       style={'width': 'auto', 'marginTop': '10px', 'backgroundColor': 'white', 'color': COLORS['accent']})
+                        ], style={'textAlign': 'center'}),
+
+                        # Feedback area
+                        html.Div(id='error-submit-feedback', style={'marginTop': '15px', 'textAlign': 'center'}),
+
+                        # Privacy note
+                        html.Div([
+                            html.Small([
+                                "Your privacy matters: Email is optional and only used if we need clarification. ",
+                                "We do not share your information with third parties."
+                            ], style={'color': 'rgba(255,255,255,0.7)', 'fontStyle': 'italic'})
+                        ], style={'marginTop': '20px', 'textAlign': 'center'})
+
+                    ], style={
+                        'backgroundColor': 'rgba(0,0,0,0.2)',
+                        'padding': '20px',
+                        'borderRadius': '8px',
+                        'marginTop': '10px'
+                    })
                 ], style={
                     'backgroundColor': COLORS['accent'],
                     'color': 'white',
                     'padding': '25px',
                     'borderRadius': '8px',
-                    'textAlign': 'center'
+                    'textAlign': 'left'
                 })
             ], className='container')
         ])
@@ -1593,14 +1904,11 @@ app.index_string = '''
 '''
 
 app.layout = html.Div([
-    # Language store
-    dcc.Store(id='language-store', data='en'),
-
     # Header with dynamic background based on active tab
     html.Div([
         html.Div([
-            html.H1(id='main-title', children="THE COST OF ENFORCEMENT", className='main-title'),
-            html.P(id='subtitle', children="An Interactive Investigation into U.S. Immigration Detention & Deportation",
+            html.H1("THE COST OF ENFORCEMENT", className='main-title'),
+            html.P("An Interactive Investigation into U.S. Immigration Detention & Deportation",
                    className='subtitle'),
             html.Hr(className='title-rule'),
             html.P([
@@ -1622,23 +1930,22 @@ app.layout = html.Div([
     # Key Statistics Banner
     html.Div([
         html.Div([
-            html.H3(id='stats-section-label', children="THE NUMBERS", className='section-label'),
-            html.Div(id='stats-cards-container', children=[
-                dbc.Row([
-                    dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated"), md=2),
-                    dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high"), md=2),
-                    dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees"), md=2),
-                    dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year"), md=2),
-                    dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)"), md=2),
-                    dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate"), md=2),
-                ], className='stat-row'),
-            ]),
+            html.H3("THE NUMBERS", className='section-label'),
+            dbc.Row([
+                dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated"), md=2),
+                dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high"), md=2),
+                dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees"), md=2),
+                dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year"), md=2),
+                dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)"), md=2),
+                dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate"), md=2),
+            ], className='stat-row'),
         ], className='container-fluid')
     ], className='stats-banner'),
 
     # Navigation Tabs
     html.Div([
         dbc.Tabs([
+            dbc.Tab(label="Redacted", tab_id="tab-landing"),
             dbc.Tab(label="Overview", tab_id="tab-overview"),
             dbc.Tab(label="Funding & Budget", tab_id="tab-funding"),
             dbc.Tab(label="Detention", tab_id="tab-detention"),
@@ -1679,13 +1986,47 @@ app.layout = html.Div([
         ], className='container')
     ], className='footer'),
 
-    # Language Selector (fixed position)
+    # Fixed Share Bar (privacy-focused sharing)
     html.Div([
-        html.Button("EN", id='lang-en', className='lang-btn active', n_clicks=0, title='English'),
-        html.Button("ES", id='lang-es', className='lang-btn', n_clicks=0, title='Español'),
-        html.Button("FR", id='lang-fr', className='lang-btn', n_clicks=0, title='Français'),
-        html.Button("中", id='lang-zh', className='lang-btn', n_clicks=0, title='中文'),
-    ], className='lang-selector')
+        html.Button(
+            "",
+            id='fixed-share-signal',
+            className='fixed-share-btn signal',
+            title='Share via Signal (E2E encrypted)'
+        ),
+        html.A(
+            "",
+            id='fixed-share-telegram',
+            className='fixed-share-btn telegram',
+            href='https://t.me/share/url?url=https%3A%2F%2Fice-data-explorer.onrender.com&text=ICE%20Data%20Explorer%20-%20Interactive%20investigation%20into%20U.S.%20immigration%20enforcement',
+            target='_blank',
+            title='Share via Telegram (E2E encrypted)'
+        ),
+        html.A(
+            "",
+            id='fixed-share-whatsapp',
+            className='fixed-share-btn whatsapp',
+            href='https://wa.me/?text=ICE%20Data%20Explorer%20-%20Interactive%20investigation%20into%20U.S.%20immigration%20enforcement%20https%3A%2F%2Fice-data-explorer.onrender.com',
+            target='_blank',
+            title='Share via WhatsApp (E2E encrypted)'
+        ),
+        html.Button(
+            "",
+            id='fixed-share-copy',
+            className='fixed-share-btn copy',
+            title='Copy link to clipboard'
+        ),
+    ], className='fixed-share-bar'),
+
+    # Clipboard for sharing
+    dcc.Clipboard(id='main-clipboard', style={'display': 'none'}),
+
+    # Store for share content
+    dcc.Store(id='share-content-store', data={
+        'title': 'The Cost of Enforcement',
+        'description': 'Interactive investigation into U.S. immigration detention & deportation',
+        'url': 'https://ice-data-explorer.onrender.com'
+    }),
 ], className='app-container')
 
 
@@ -1700,6 +2041,7 @@ app.layout = html.Div([
 def update_header_background(active_tab):
     """Update header background image based on active tab."""
     tab_to_class = {
+        'tab-landing': 'header header-overview',
         'tab-overview': 'header header-overview',
         'tab-funding': 'header header-funding',
         'tab-detention': 'header header-detention',
@@ -1714,6 +2056,7 @@ def update_header_background(active_tab):
         'tab-legislation': 'header header-funding',
         'tab-explorer': 'header header-explorer',
         'tab-narratives': 'header header-deaths',
+        'tab-resources': 'header header-funding',
         'tab-methodology': 'header header-funding',
     }
     return tab_to_class.get(active_tab, 'header header-overview')
@@ -1741,68 +2084,16 @@ def update_freshness_indicator(active_tab):
 
 
 @callback(
-    [Output('lang-en', 'className'),
-     Output('lang-es', 'className'),
-     Output('lang-fr', 'className'),
-     Output('lang-zh', 'className'),
-     Output('language-store', 'data')],
-    [Input('lang-en', 'n_clicks'),
-     Input('lang-es', 'n_clicks'),
-     Input('lang-fr', 'n_clicks'),
-     Input('lang-zh', 'n_clicks')],
-    [State('language-store', 'data')]
-)
-def update_language(en_clicks, es_clicks, fr_clicks, zh_clicks, current_lang):
-    """Handle language selection."""
-    from dash import ctx
-    triggered = ctx.triggered_id
-
-    lang_map = {
-        'lang-en': 'en',
-        'lang-es': 'es',
-        'lang-fr': 'fr',
-        'lang-zh': 'zh',
-    }
-
-    selected = lang_map.get(triggered, 'en')
-    classes = ['lang-btn active' if lang_map[f'lang-{l}'] == selected else 'lang-btn' for l in ['en', 'es', 'fr', 'zh']]
-    return classes[0], classes[1], classes[2], classes[3], selected
-
-
-@callback(
-    [Output('main-title', 'children'),
-     Output('subtitle', 'children'),
-     Output('stats-section-label', 'children'),
-     Output('stats-cards-container', 'children')],
-    Input('language-store', 'data')
-)
-def update_header_text(lang):
-    """Update header and stats text based on language."""
-    title = get_translation('title.main', lang)
-    subtitle = get_translation('title.subtitle', lang)
-    section_label = get_translation('section.the_numbers', lang)
-
-    # Translated stat cards
-    stats_row = dbc.Row([
-        dbc.Col(create_key_stat_card("$170B", get_translation('stat.budget', lang), get_translation('stat.largest_ever', lang)), md=2),
-        dbc.Col(create_key_stat_card("73,000", get_translation('stat.detained', lang), get_translation('stat.record_high', lang)), md=2),
-        dbc.Col(create_key_stat_card("73%", get_translation('stat.no_criminal', lang), get_translation('stat.of_detainees', lang)), md=2),
-        dbc.Col(create_key_stat_card("32", get_translation('stat.deaths', lang), get_translation('stat.3x_previous', lang)), md=2),
-        dbc.Col(create_key_stat_card("765%", get_translation('stat.budget_increase', lang), get_translation('stat.since_1994', lang)), md=2),
-        dbc.Col(create_key_stat_card("$70,236", get_translation('stat.cost_deportation', lang), get_translation('stat.avg_estimate', lang)), md=2),
-    ], className='stat-row')
-
-    return title, subtitle, section_label, stats_row
-
-
-@callback(
     Output('tab-content', 'children'),
     Input('tabs', 'active_tab')
 )
 def render_tab_content(active_tab):
     """Render content for each tab."""
 
-    if active_tab == 'tab-overview':
+    if active_tab == 'tab-landing':
+        return get_landing_content()
+
+    elif active_tab == 'tab-overview':
         return html.Div([
             # Scrollytelling Mode Toggle Info
             html.Div([
@@ -2108,24 +2399,7 @@ def render_tab_content(active_tab):
 
                 dcc.Graph(figure=get_flight_tracker_map(), config={'displayModeBar': False, 'scrollZoom': False}),
 
-                html.Div([
-                    html.Div([
-                        html.Div("5", className='flight-stat-value'),
-                        html.Div("Active Flights", className='flight-stat-label')
-                    ], className='flight-stat'),
-                    html.Div([
-                        html.Div("548", className='flight-stat-value'),
-                        html.Div("Passengers Today", className='flight-stat-label')
-                    ], className='flight-stat'),
-                    html.Div([
-                        html.Div("$3.2M", className='flight-stat-value'),
-                        html.Div("Est. Daily Cost", className='flight-stat-label')
-                    ], className='flight-stat'),
-                    html.Div([
-                        html.Div("965", className='flight-stat-value'),
-                        html.Div("Avg. Daily Arrests", className='flight-stat-label')
-                    ], className='flight-stat'),
-                ], className='flight-stats-row'),
+                html.Div(id='flight-stats-container', children=get_flight_stats_display()),
             ], className='container flight-tracker-container'),
 
             # Flight Information
@@ -2812,6 +3086,114 @@ def render_tab_content(active_tab):
     return html.Div("Select a tab to view content.")
 
 
+# ============================================
+# PROVENANCE TABLE FILTER CALLBACK
+# ============================================
+
+@callback(
+    Output('provenance-table-container', 'children'),
+    Input('provenance-status-filter', 'value'),
+    Input('provenance-source-filter', 'value'),
+    Input('provenance-preset-verified', 'n_clicks'),
+    Input('provenance-preset-hide-govt', 'n_clicks'),
+    Input('provenance-preset-clear', 'n_clicks'),
+)
+def update_provenance_table(status_filter, source_type_filter, n_verified, n_hide_govt, n_clear):
+    """Filter the data provenance table based on user selections."""
+    from dash import ctx
+
+    # Handle preset buttons
+    triggered = ctx.triggered_id if ctx.triggered_id else None
+
+    if triggered == 'provenance-preset-verified':
+        status_filter = 'verified'
+        source_type_filter = ''
+    elif triggered == 'provenance-preset-hide-govt':
+        status_filter = 'hide_government_only'  # Special value
+        source_type_filter = ''
+    elif triggered == 'provenance-preset-clear':
+        status_filter = ''
+        source_type_filter = ''
+
+    # Build query with filters
+    query = '''
+        SELECT dp.*, sr.source_type
+        FROM data_provenance dp
+        LEFT JOIN source_registry sr ON dp.primary_source_id = sr.id
+        WHERE 1=1
+    '''
+    params = []
+
+    if status_filter == 'hide_government_only':
+        query += " AND dp.verification_status != 'government_only'"
+    elif status_filter:
+        query += ' AND dp.verification_status = ?'
+        params.append(status_filter)
+
+    if source_type_filter:
+        query += ' AND sr.source_type = ?'
+        params.append(source_type_filter)
+
+    query += ' ORDER BY dp.metric_category, dp.metric_name'
+
+    provenance_data = query_data(query, params if params else None)
+
+    return build_provenance_table(provenance_data)
+
+
+# ============================================
+# ERROR REPORTING FORM CALLBACK
+# ============================================
+
+@callback(
+    Output('error-submit-feedback', 'children'),
+    Input('error-submit-btn', 'n_clicks'),
+    State('error-type-dropdown', 'value'),
+    State('error-metric-input', 'value'),
+    State('error-description-textarea', 'value'),
+    State('error-source-url-input', 'value'),
+    State('error-email-input', 'value'),
+    prevent_initial_call=True
+)
+def submit_error_report(n_clicks, error_type, metric_name, description, source_url, email):
+    """Submit an error report to the database."""
+    if not n_clicks:
+        return ""
+
+    # Validation
+    if not description or len(description.strip()) < 10:
+        return html.Div([
+            html.Span("⚠️ ", style={'marginRight': '5px'}),
+            html.Span("Please provide a description of the issue (at least 10 characters).")
+        ], style={'color': '#ffd166'})
+
+    # Insert into database
+    try:
+        query = '''
+            INSERT INTO error_reports (error_type, metric_name, description, suggested_source_url, reporter_email)
+            VALUES (?, ?, ?, ?, ?)
+        '''
+        execute_query(query, (
+            error_type,
+            metric_name.strip() if metric_name else None,
+            description.strip(),
+            source_url.strip() if source_url else None,
+            email.strip() if email else None
+        ))
+
+        return html.Div([
+            html.Span("✓ ", style={'marginRight': '5px'}),
+            html.Span("Thank you! Your report has been submitted. ", style={'fontWeight': 'bold'}),
+            html.Span("We will review it and update our data if needed.")
+        ], style={'color': '#06d6a0'})
+
+    except Exception as e:
+        return html.Div([
+            html.Span("❌ ", style={'marginRight': '5px'}),
+            html.Span("Sorry, there was an error submitting your report. Please try again later.")
+        ], style={'color': '#ef476f'})
+
+
 @callback(
     Output('dataset-description', 'children'),
     Input('table-selector', 'value')
@@ -3401,6 +3783,24 @@ clientside_callback(
 )
 
 
+# Landing page: "Reveal the Truth" button - shows document section
+clientside_callback(
+    REVEAL_JS,
+    Output('intro-overlay', 'className'),
+    Input('begin-reveal-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+
+# Landing page: "Lift All Redactions" button - reveals all hidden truths
+clientside_callback(
+    LIFT_ALL_JS,
+    Output('gov-document', 'className'),
+    Input('lift-redactions-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+
 # Callback for taxpayer receipt generation
 @callback(
     [Output('taxpayer-receipt-output', 'children'),
@@ -3423,6 +3823,168 @@ def generate_receipt(n_clicks, income, status):
     opportunities = generate_opportunity_costs(calc['ice_contribution'])
 
     return receipt, opportunities
+
+
+# ============================================
+# SHARE FUNCTIONALITY CALLBACKS
+# ============================================
+
+# Clientside callback for Signal share (copies to clipboard and attempts to open Signal)
+clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks) {
+            var shareText = "The Cost of Enforcement - ICE Data Explorer\\n\\n" +
+                "Interactive investigation into U.S. immigration detention & deportation.\\n\\n" +
+                "Key findings:\\n" +
+                "• $170B enforcement budget (largest ever)\\n" +
+                "• 73,000 currently detained (record high)\\n" +
+                "• 73% have no criminal record\\n\\n" +
+                "Explore the data: https://ice-data-explorer.onrender.com\\n\\n" +
+                "Know Your Rights: https://www.aclu.org/know-your-rights/immigrants-rights";
+
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareText);
+            }
+
+            // Try to open Signal (works if app is installed)
+            var signalUrl = 'signal://send?text=' + encodeURIComponent(shareText);
+            window.open(signalUrl, '_blank');
+
+            // Show feedback
+            alert('Message copied. If Signal does not open automatically, paste the copied text into Signal manually.');
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('fixed-share-signal', 'n_clicks'),
+    Input('fixed-share-signal', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+
+# Clientside callback for copy to clipboard
+clientside_callback(
+    """
+    function(n_clicks) {
+        if (n_clicks) {
+            var shareText = "The Cost of Enforcement - ICE Data Explorer\\n\\n" +
+                "Interactive investigation into U.S. immigration detention & deportation.\\n" +
+                "https://ice-data-explorer.onrender.com";
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareText).then(function() {
+                    alert('Link copied to clipboard!');
+                });
+            } else {
+                // Fallback
+                var textarea = document.createElement('textarea');
+                textarea.value = shareText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Link copied to clipboard!');
+            }
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('fixed-share-copy', 'n_clicks'),
+    Input('fixed-share-copy', 'n_clicks'),
+    prevent_initial_call=True
+)
+
+
+# Alert Widget: Share via Signal
+clientside_callback(
+    """
+    function(n_clicks, message, alertType, location) {
+        if (n_clicks && message) {
+            var typeLabels = {
+                'vehicle': 'ICE Vehicle Sighting',
+                'enforcement': 'Enforcement Activity',
+                'checkpoint': 'Checkpoint',
+                'raid': 'Raid/Operation',
+                'other': 'Other Activity'
+            };
+
+            var alertText = "COMMUNITY ALERT - " + (typeLabels[alertType] || 'ICE Activity') + "\\n\\n" +
+                message + "\\n\\n" +
+                "Location: " + (location || 'Not specified') + "\\n\\n" +
+                "Stay safe. Know Your Rights: https://www.aclu.org/know-your-rights/immigrants-rights\\n" +
+                "Report activity: https://unitedwedream.org/protect";
+
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(alertText);
+            }
+
+            // Try to open Signal
+            var signalUrl = 'signal://send?text=' + encodeURIComponent(alertText);
+            window.open(signalUrl, '_blank');
+
+            alert('Alert copied! Paste into Signal to share with your community.');
+        } else if (n_clicks && !message) {
+            alert('Please enter a message to share.');
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('quick-signal-share', 'n_clicks'),
+    Input('quick-signal-share', 'n_clicks'),
+    [State('alert-message-input', 'value'),
+     State('alert-type-select', 'value'),
+     State('alert-location-input', 'value')],
+    prevent_initial_call=True
+)
+
+
+# Alert Widget: Copy to clipboard
+clientside_callback(
+    """
+    function(n_clicks, message, alertType, location) {
+        if (n_clicks && message) {
+            var typeLabels = {
+                'vehicle': 'ICE Vehicle Sighting',
+                'enforcement': 'Enforcement Activity',
+                'checkpoint': 'Checkpoint',
+                'raid': 'Raid/Operation',
+                'other': 'Other Activity'
+            };
+
+            var alertText = "COMMUNITY ALERT - " + (typeLabels[alertType] || 'ICE Activity') + "\\n\\n" +
+                message + "\\n\\n" +
+                "Location: " + (location || 'Not specified') + "\\n\\n" +
+                "Stay safe. Know Your Rights: https://www.aclu.org/know-your-rights/immigrants-rights";
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(alertText).then(function() {
+                    alert('Alert copied to clipboard!');
+                });
+            } else {
+                var textarea = document.createElement('textarea');
+                textarea.value = alertText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Alert copied to clipboard!');
+            }
+        } else if (n_clicks && !message) {
+            alert('Please enter a message to share.');
+        }
+        return window.dash_clientside.no_update;
+    }
+    """,
+    Output('quick-copy-alert', 'n_clicks'),
+    Input('quick-copy-alert', 'n_clicks'),
+    [State('alert-message-input', 'value'),
+     State('alert-type-select', 'value'),
+     State('alert-location-input', 'value')],
+    prevent_initial_call=True
+)
 
 
 if __name__ == '__main__':

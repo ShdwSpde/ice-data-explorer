@@ -670,6 +670,20 @@ def init_database():
         )
     ''')
 
+    # Error reports from users
+    create_table('''
+        CREATE TABLE IF NOT EXISTS error_reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            error_type TEXT NOT NULL,
+            metric_name TEXT,
+            description TEXT NOT NULL,
+            suggested_source_url TEXT,
+            reporter_email TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status TEXT DEFAULT 'new'
+        )
+    ''')
+
     conn.commit()
     conn.close()
     print(f"Database initialized successfully. Using {'PostgreSQL' if USE_POSTGRES else 'SQLite'}.")
