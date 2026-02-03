@@ -51,6 +51,140 @@ app = dash.Dash(
 
 server = app.server
 
+# ============================================
+# REST API ENDPOINTS
+# ============================================
+
+from flask import jsonify, request
+
+# List of tables available via API
+API_TABLES = [
+    'agency_budgets', 'arrests', 'deaths_in_custody', 'deportations',
+    'detention_facilities', 'detention_population', 'key_statistics',
+    'source_registry', 'data_provenance', 'source_contradictions',
+    'data_changelog', 'foia_requests', 'news_articles'
+]
+
+@server.route('/api/')
+def api_index():
+    """API documentation endpoint."""
+    return jsonify({
+        'name': 'ICE Data Explorer API',
+        'version': '1.0',
+        'description': 'Public API for accessing immigration enforcement data',
+        'endpoints': {
+            '/api/': 'This documentation',
+            '/api/tables': 'List available data tables',
+            '/api/tables/<table_name>': 'Get all records from a table',
+            '/api/provenance': 'Data provenance for key statistics',
+            '/api/sources': 'Source registry with trust levels',
+            '/api/contradictions': 'Government vs independent discrepancies',
+            '/api/changelog': 'Data update history',
+            '/api/foia': 'FOIA request tracking',
+            '/api/statistics': 'Key statistics summary',
+        },
+        'parameters': {
+            'limit': 'Maximum number of records (default: 100)',
+            'offset': 'Number of records to skip (default: 0)',
+            'format': 'Response format: json (default) or csv',
+        },
+        'source': 'https://github.com/ice-data-explorer',
+        'license': 'MIT - Data compiled from public sources'
+    })
+
+@server.route('/api/tables')
+def api_tables():
+    """List available tables."""
+    return jsonify({
+        'tables': API_TABLES,
+        'count': len(API_TABLES)
+    })
+
+@server.route('/api/tables/<table_name>')
+def api_table_data(table_name):
+    """Get data from a specific table."""
+    if table_name not in API_TABLES:
+        return jsonify({'error': f'Table not found. Available: {API_TABLES}'}), 404
+
+    limit = request.args.get('limit', 100, type=int)
+    offset = request.args.get('offset', 0, type=int)
+    limit = min(limit, 1000)  # Cap at 1000 records
+
+    data = query_data(f'SELECT * FROM {table_name} LIMIT ? OFFSET ?', [limit, offset])
+    total = query_data(f'SELECT COUNT(*) as count FROM {table_name}')[0]['count']
+
+    return jsonify({
+        'table': table_name,
+        'data': data,
+        'count': len(data),
+        'total': total,
+        'limit': limit,
+        'offset': offset
+    })
+
+@server.route('/api/provenance')
+def api_provenance():
+    """Get data provenance records."""
+    data = query_data('SELECT * FROM data_provenance ORDER BY metric_category, metric_name')
+    return jsonify({
+        'data': data,
+        'count': len(data),
+        'description': 'Provenance tracking for key statistics with verification status'
+    })
+
+@server.route('/api/sources')
+def api_sources():
+    """Get source registry."""
+    data = query_data('SELECT * FROM source_registry ORDER BY trust_level, source_type')
+    return jsonify({
+        'data': data,
+        'count': len(data),
+        'trust_levels': ['high', 'medium', 'low', 'contested'],
+        'source_types': ['government', 'ngo', 'academic', 'media', 'legal', 'investigative']
+    })
+
+@server.route('/api/contradictions')
+def api_contradictions():
+    """Get source contradictions."""
+    data = query_data('SELECT * FROM source_contradictions ORDER BY severity DESC')
+    return jsonify({
+        'data': data,
+        'count': len(data),
+        'description': 'Cases where government and independent sources disagree'
+    })
+
+@server.route('/api/changelog')
+def api_changelog():
+    """Get data changelog."""
+    limit = request.args.get('limit', 50, type=int)
+    data = query_data('SELECT * FROM data_changelog ORDER BY change_date DESC LIMIT ?', [limit])
+    return jsonify({
+        'data': data,
+        'count': len(data),
+        'description': 'History of data updates, corrections, and additions'
+    })
+
+@server.route('/api/foia')
+def api_foia():
+    """Get FOIA request tracking."""
+    data = query_data('SELECT * FROM foia_requests ORDER BY request_date DESC')
+    return jsonify({
+        'data': data,
+        'count': len(data),
+        'description': 'Freedom of Information Act requests and their status'
+    })
+
+@server.route('/api/statistics')
+def api_statistics():
+    """Get key statistics summary."""
+    data = query_data('SELECT * FROM key_statistics')
+    return jsonify({
+        'data': data,
+        'count': len(data),
+        'description': 'Key immigration enforcement statistics'
+    })
+
+
 # Color palette (journalism/documentary style)
 COLORS = {
     'primary': '#1a1a2e',
@@ -1372,6 +1506,8 @@ def get_methodology_tab_content():
     sources = query_data('SELECT * FROM source_registry ORDER BY trust_level, source_type')
     provenance = query_data('SELECT * FROM data_provenance ORDER BY metric_category, metric_name')
     contradictions = query_data('SELECT * FROM source_contradictions ORDER BY severity DESC')
+    changelog = query_data('SELECT * FROM data_changelog ORDER BY change_date DESC LIMIT 15')
+    foia_requests = query_data('SELECT * FROM foia_requests ORDER BY request_date DESC')
 
     # Trust level badge colors
     trust_colors = {
@@ -1726,7 +1862,117 @@ def get_methodology_tab_content():
             ], className='container')
         ], style={'marginBottom': '40px'}),
 
-        # Call to Action
+        # Data Changelog
+        html.Div([
+            html.Div([
+                html.H3("📋 Data Changelog", style={'marginBottom': '20px'}),
+                html.P([
+                    "We maintain a public log of all data updates, corrections, and additions. ",
+                    "Transparency means showing our work—including when we get things wrong."
+                ], style={'marginBottom': '20px', 'color': COLORS['text_muted']}),
+                html.Div([
+                    html.Div([
+                        html.Div([
+                            html.Span(
+                                entry.get('change_type', '').upper(),
+                                style={
+                                    'backgroundColor': {
+                                        'addition': '#28a745',
+                                        'update': '#17a2b8',
+                                        'correction': '#ffc107',
+                                        'removal': '#dc3545'
+                                    }.get(entry.get('change_type', ''), '#6c757d'),
+                                    'color': 'white' if entry.get('change_type') != 'correction' else '#1a1a2e',
+                                    'padding': '2px 8px',
+                                    'borderRadius': '4px',
+                                    'fontSize': '0.7rem',
+                                    'fontWeight': 'bold',
+                                    'marginRight': '10px'
+                                }
+                            ),
+                            html.Span(entry.get('change_date', ''), style={'color': COLORS['text_muted'], 'fontSize': '0.85rem'}),
+                        ], style={'marginBottom': '5px'}),
+                        html.Div([
+                            html.Strong(entry.get('metric_name', 'General'), style={'marginRight': '10px'}),
+                            html.Span(f"({entry.get('category', '')})", style={'color': COLORS['text_muted'], 'fontSize': '0.85rem'}) if entry.get('category') else None,
+                        ]),
+                        html.P(entry.get('reason', ''), style={'margin': '5px 0', 'fontSize': '0.9rem'}),
+                        html.Div([
+                            html.Span(f"{entry.get('old_value', '—')} → {entry.get('new_value', '—')}",
+                                     style={'fontFamily': 'monospace', 'backgroundColor': COLORS['chart_bg'],
+                                           'padding': '2px 8px', 'borderRadius': '4px', 'fontSize': '0.85rem'})
+                        ] if entry.get('old_value') or entry.get('new_value') else [], style={'marginTop': '5px'}),
+                        html.Div([
+                            html.Small(f"Verified by: {entry.get('verified_by', 'Editorial')}",
+                                      style={'color': COLORS['text_muted']})
+                        ], style={'marginTop': '5px'})
+                    ], style={
+                        'backgroundColor': COLORS['chart_bg'],
+                        'padding': '15px',
+                        'borderRadius': '8px',
+                        'marginBottom': '10px',
+                        'borderLeft': '3px solid ' + {'addition': '#28a745', 'update': '#17a2b8', 'correction': '#ffc107', 'removal': '#dc3545'}.get(entry.get('change_type', ''), '#6c757d')
+                    }) for entry in changelog
+                ] if changelog else [html.P("No changelog entries yet.", style={'color': COLORS['text_muted']})])
+            ], className='container')
+        ], style={'marginBottom': '40px'}),
+
+        # FOIA Request Tracking
+        html.Div([
+            html.Div([
+                html.H3("📄 FOIA Request Tracking", style={'marginBottom': '20px'}),
+                html.P([
+                    "We actively file Freedom of Information Act requests to obtain data the government doesn't voluntarily publish. ",
+                    "Track the status of our pending requests below."
+                ], style={'marginBottom': '20px', 'color': COLORS['text_muted']}),
+                html.Div([
+                    html.Div([
+                        html.Div([
+                            html.Span(
+                                foia.get('status', 'pending').upper(),
+                                style={
+                                    'backgroundColor': {
+                                        'pending': '#ffc107',
+                                        'partial': '#17a2b8',
+                                        'completed': '#28a745',
+                                        'denied': '#dc3545',
+                                        'appealed': '#6f42c1'
+                                    }.get(foia.get('status', ''), '#6c757d'),
+                                    'color': 'white' if foia.get('status') not in ['pending'] else '#1a1a2e',
+                                    'padding': '2px 10px',
+                                    'borderRadius': '4px',
+                                    'fontSize': '0.75rem',
+                                    'fontWeight': 'bold',
+                                    'marginRight': '10px'
+                                }
+                            ),
+                            html.Span(f"Filed: {foia.get('request_date', '')}", style={'color': COLORS['text_muted'], 'fontSize': '0.85rem'}),
+                            html.Span(f" • {foia.get('agency', '')}", style={'color': COLORS['accent'], 'fontSize': '0.85rem', 'fontWeight': 'bold'}),
+                        ], style={'marginBottom': '8px'}),
+                        html.Div([
+                            html.Strong(foia.get('description', '')),
+                        ]),
+                        html.P(foia.get('data_requested', ''), style={'margin': '8px 0', 'fontSize': '0.9rem', 'color': COLORS['text_muted']}),
+                        html.Div([
+                            html.Span(f"📄 {foia.get('documents_received', 0)} documents received",
+                                     style={'marginRight': '15px', 'fontSize': '0.85rem'}),
+                            html.Span("⚠️ Appeal filed", style={'color': '#ffc107', 'fontSize': '0.85rem'}) if foia.get('appeal_filed') else None,
+                        ]) if foia.get('documents_received', 0) > 0 or foia.get('appeal_filed') else None,
+                        html.Div([
+                            html.Small(foia.get('response_summary', '') or foia.get('notes', ''),
+                                      style={'color': COLORS['text_muted'], 'fontStyle': 'italic'})
+                        ], style={'marginTop': '8px'}) if foia.get('response_summary') or foia.get('notes') else None
+                    ], style={
+                        'backgroundColor': COLORS['chart_bg'],
+                        'padding': '15px',
+                        'borderRadius': '8px',
+                        'marginBottom': '10px',
+                        'borderLeft': '3px solid ' + {'pending': '#ffc107', 'partial': '#17a2b8', 'completed': '#28a745', 'denied': '#dc3545', 'appealed': '#6f42c1'}.get(foia.get('status', ''), '#6c757d')
+                    }) for foia in foia_requests
+                ] if foia_requests else [html.P("No FOIA requests tracked yet.", style={'color': COLORS['text_muted']})])
+            ], className='container')
+        ], style={'marginBottom': '40px'}),
+
         # Error Reporting Form
         html.Div([
             html.Div([

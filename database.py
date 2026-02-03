@@ -684,6 +684,42 @@ def init_database():
         )
     ''')
 
+    # Data changelog for transparency
+    create_table('''
+        CREATE TABLE IF NOT EXISTS data_changelog (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            change_date DATE NOT NULL,
+            change_type TEXT NOT NULL,
+            category TEXT,
+            metric_name TEXT,
+            old_value TEXT,
+            new_value TEXT,
+            reason TEXT,
+            source_url TEXT,
+            verified_by TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    # FOIA request tracking
+    create_table('''
+        CREATE TABLE IF NOT EXISTS foia_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            request_date DATE NOT NULL,
+            agency TEXT NOT NULL,
+            description TEXT NOT NULL,
+            data_requested TEXT,
+            status TEXT DEFAULT 'pending',
+            response_date DATE,
+            response_summary TEXT,
+            documents_received INTEGER DEFAULT 0,
+            appeal_filed INTEGER DEFAULT 0,
+            source_url TEXT,
+            notes TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
     conn.commit()
     conn.close()
     print(f"Database initialized successfully. Using {'PostgreSQL' if USE_POSTGRES else 'SQLite'}.")
@@ -2051,6 +2087,69 @@ def seed_data():
              recommended_value, recommendation_rationale, severity, date_identified, notes)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', contradiction)
+
+    # Seed data changelog
+    changelog_data = [
+        ('2026-01-28', 'addition', 'Sources', 'Community Resources', None, 'Added',
+         'Added external ICE tracking tools directory', 'https://documentingice.com', 'Editorial'),
+        ('2026-01-27', 'update', 'Budget', '2025 Enforcement Budget', '$150B', '$170B',
+         'Updated to reflect Big Beautiful Bill allocation', 'https://www.congress.gov', 'American Immigration Council'),
+        ('2026-01-25', 'addition', 'Sentiment', 'News Articles', None, '90 articles',
+         'Expanded news database for sentiment analysis', None, 'Editorial'),
+        ('2026-01-22', 'correction', 'Deaths', 'Deaths in Custody 2025', '28', '32',
+         'Updated based on Guardian/ACLU investigation findings', 'https://www.theguardian.com', 'ACLU/PHR'),
+        ('2026-01-20', 'addition', 'Methodology', 'Source Registry', None, '19 sources',
+         'Added comprehensive source documentation with trust levels', None, 'Editorial'),
+        ('2026-01-18', 'update', 'Detention', 'Detention Population', '68,000', '73,000',
+         'Updated to current figures from ICE statistics', 'https://www.ice.gov/statistics', 'ICE Statistics'),
+        ('2026-01-15', 'addition', 'Transparency', 'Data Provenance', None, '14 metrics',
+         'Added provenance tracking for key statistics', None, 'Editorial'),
+        ('2026-01-10', 'correction', 'Costs', 'Cost Per Deportation', '$60,000', '$70,236',
+         'Corrected to Penn Wharton methodology figure', 'https://budgetmodel.wharton.upenn.edu', 'Penn Wharton'),
+        ('2026-01-05', 'addition', 'Features', 'Translation Support', None, '4 languages',
+         'Added Spanish, French, and Chinese translations', None, 'Editorial'),
+        ('2025-12-20', 'update', 'Detention', 'Criminal Record Stats', '70%', '73%',
+         'Updated based on latest CATO analysis', 'https://www.cato.org', 'CATO Institute'),
+    ]
+
+    for entry in changelog_data:
+        cursor.execute('''
+            INSERT INTO data_changelog
+            (change_date, change_type, category, metric_name, old_value, new_value, reason, source_url, verified_by)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', entry)
+
+    # Seed FOIA requests
+    foia_data = [
+        ('2025-11-15', 'ICE', 'Deaths in custody records 2024-2025',
+         'Complete records of all deaths, medical records, autopsy reports',
+         'pending', None, None, 0, 0,
+         None, 'Filed via MuckRock'),
+        ('2025-10-01', 'DHS', 'Detention facility inspection reports',
+         'All inspection reports for private detention facilities 2024-2025',
+         'partial', '2026-01-05', 'Received 450 pages with significant redactions',
+         450, 1, 'https://www.muckrock.com', 'Appeal filed for unredacted versions'),
+        ('2025-09-15', 'CBP', 'Border encounter methodology documentation',
+         'Internal guidance on counting encounters vs individuals',
+         'completed', '2025-12-10', 'Received methodology documents confirming multiple counting',
+         85, 0, None, 'Confirmed methodology inflates numbers'),
+        ('2025-08-20', 'ICE', 'Private prison contract terms',
+         'Full contract documents including bed guarantees',
+         'pending', None, None, 0, 0,
+         None, 'Agency requested 6-month extension'),
+        ('2025-07-10', 'DHS', 'Deportation flight manifests',
+         'Records of all deportation flights including destinations',
+         'denied', '2025-10-15', 'Denied citing law enforcement exemption',
+         0, 1, None, 'Appeal pending in federal court'),
+    ]
+
+    for foia in foia_data:
+        cursor.execute('''
+            INSERT INTO foia_requests
+            (request_date, agency, description, data_requested, status, response_date,
+             response_summary, documents_received, appeal_filed, source_url, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', foia)
 
     conn.commit()
     conn.close()
