@@ -297,34 +297,30 @@ def get_landing_content():
 REVEAL_JS = """
 function(n_clicks) {
     if (n_clicks) {
-        // Hide intro overlay
-        const overlay = document.getElementById('intro-overlay');
-        if (overlay) {
-            overlay.classList.add('hidden');
-        }
-
-        // Show document
+        // Show document section
         const docSection = document.getElementById('document-section');
         if (docSection) {
             docSection.classList.add('visible');
         }
+        // Return new className for intro-overlay
+        return 'landing-intro-overlay hidden';
     }
-    return window.dash_clientside.no_update;
+    return 'landing-intro-overlay';
 }
 """
 
 LIFT_ALL_JS = """
 function(n_clicks) {
     if (n_clicks) {
+        // Show all hidden notes
         const doc = document.getElementById('gov-document');
         if (doc) {
-            doc.classList.add('revealed');
-
-            // Show all hidden notes
             const notes = doc.querySelectorAll('.hidden-note');
             notes.forEach(note => note.classList.add('visible'));
         }
+        // Return new className for gov-document
+        return 'gov-document revealed';
     }
-    return window.dash_clientside.no_update;
+    return 'gov-document';
 }
 """

@@ -82,44 +82,44 @@ OUTLET_CATEGORIES = {
     },
 }
 
-# Top recent stories
-RECENT_STORIES = [
-    {
-        'headline': 'ICE Arrests at Courthouse Spark Legal Challenge',
-        'outlet': 'The Marshall Project',
-        'date': '2024-01-15',
-        'sentiment': 'negative',
-        'topic': 'Enforcement',
-    },
-    {
-        'headline': 'Detention Center Medical Care Under Scrutiny After Death',
-        'outlet': 'ProPublica',
-        'date': '2024-01-14',
-        'sentiment': 'negative',
-        'topic': 'Detention',
-    },
-    {
-        'headline': 'Border Crossings Hit New Monthly Record',
-        'outlet': 'Fox News',
-        'date': '2024-01-13',
-        'sentiment': 'negative',
-        'topic': 'Border',
-    },
-    {
-        'headline': 'Private Prison Company Reports Record Profits',
-        'outlet': 'NYT',
-        'date': '2024-01-12',
-        'sentiment': 'neutral',
-        'topic': 'Economics',
-    },
-    {
-        'headline': 'Asylum Backlog Reaches 3 Million Cases',
-        'outlet': 'CNN',
-        'date': '2024-01-11',
-        'sentiment': 'neutral',
-        'topic': 'Legal',
-    },
+# Story templates for dynamic generation
+STORY_TEMPLATES = [
+    {'headline': 'ICE Arrests at Courthouse Spark Legal Challenge', 'outlet': 'The Marshall Project', 'sentiment': 'negative', 'topic': 'Enforcement'},
+    {'headline': 'Detention Center Medical Care Under Scrutiny After Death', 'outlet': 'ProPublica', 'sentiment': 'negative', 'topic': 'Detention'},
+    {'headline': 'Border Crossings Hit New Monthly Record', 'outlet': 'Fox News', 'sentiment': 'negative', 'topic': 'Border'},
+    {'headline': 'Private Prison Company Reports Record Profits', 'outlet': 'NYT', 'sentiment': 'neutral', 'topic': 'Economics'},
+    {'headline': 'Asylum Backlog Reaches 3 Million Cases', 'outlet': 'CNN', 'sentiment': 'neutral', 'topic': 'Legal'},
+    {'headline': 'ICE Conducts Largest Workplace Raid in Decade', 'outlet': 'Washington Post', 'sentiment': 'negative', 'topic': 'Enforcement'},
+    {'headline': 'Deportation Flights Resume to Venezuela', 'outlet': 'Reuters', 'sentiment': 'neutral', 'topic': 'Deportations'},
+    {'headline': 'Immigrant Rights Groups Sue Over Detention Conditions', 'outlet': 'ACLU', 'sentiment': 'negative', 'topic': 'Legal'},
+    {'headline': 'New Policy Expands Expedited Removal', 'outlet': 'NBC News', 'sentiment': 'neutral', 'topic': 'Policy'},
+    {'headline': 'ICE Budget Request Reaches Historic High', 'outlet': 'Politico', 'sentiment': 'neutral', 'topic': 'Economics'},
+    {'headline': 'Detention Population Hits Record Numbers', 'outlet': 'The Guardian', 'sentiment': 'negative', 'topic': 'Detention'},
+    {'headline': 'Community Groups Report Surge in Enforcement Activity', 'outlet': 'Local News', 'sentiment': 'negative', 'topic': 'Enforcement'},
 ]
+
+
+def get_recent_stories():
+    """Generate recent stories with dynamic dates."""
+    import random
+    from datetime import datetime, timedelta
+
+    # Use time-based seed that changes every 30 minutes
+    time_seed = int(datetime.now().timestamp() // 1800)
+    random.seed(time_seed)
+
+    selected = random.sample(STORY_TEMPLATES, 5)
+    stories = []
+    base_date = datetime.now()
+
+    for i, story in enumerate(selected):
+        story_date = base_date - timedelta(days=i)
+        stories.append({
+            **story,
+            'date': story_date.strftime('%Y-%m-%d')
+        })
+
+    return stories
 
 
 def create_sentiment_pulse():
@@ -277,7 +277,7 @@ def get_media_pulse_content():
     pulse_fig = create_sentiment_pulse()
     outlet_fig = create_outlet_breakdown()
 
-    story_cards = [create_story_card(story) for story in RECENT_STORIES]
+    story_cards = [create_story_card(story) for story in get_recent_stories()]
 
     return html.Div([
         # Header

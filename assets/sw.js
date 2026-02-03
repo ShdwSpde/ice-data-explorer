@@ -1,5 +1,5 @@
 // Service Worker for ICE Data Explorer PWA
-const CACHE_NAME = 'ice-data-explorer-v1';
+const CACHE_NAME = 'ice-data-explorer-v3';
 const urlsToCache = [
   '/',
   '/assets/style.css',

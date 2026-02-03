@@ -89,6 +89,10 @@ function animateCounter(element) {
 
     element.classList.add('counting');
 
+    // Store original value for tooltip/hover
+    element.setAttribute('data-full-value', text);
+    element.setAttribute('title', text);
+
     function update(currentTime) {
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
@@ -109,12 +113,55 @@ function animateCounter(element) {
         if (progress < 1) {
             requestAnimationFrame(update);
         } else {
-            element.textContent = text; // Restore original formatting
+            // Animation complete - use abbreviated format for responsive display
+            const abbreviated = formatNumberAbbreviated(targetNum, prefix, suffix);
+            element.textContent = abbreviated;
             element.classList.remove('counting');
+            element.classList.add('counted');
         }
     }
 
     requestAnimationFrame(update);
+}
+
+/**
+ * Format large numbers with K/M/B abbreviations for responsive display
+ */
+function formatNumberAbbreviated(num, prefix = '', suffix = '') {
+    prefix = prefix || '';
+    suffix = suffix || '';
+
+    // Don't abbreviate percentages or small numbers
+    if (suffix.includes('%') || num < 1000) {
+        if (Number.isInteger(num)) {
+            return prefix + num.toLocaleString() + suffix;
+        }
+        return prefix + num.toFixed(1) + suffix;
+    }
+
+    // Abbreviate thousands
+    if (num >= 1000 && num < 1000000) {
+        const abbreviated = (num / 1000).toFixed(num >= 10000 ? 0 : 1);
+        // Remove trailing .0
+        const clean = abbreviated.replace(/\.0$/, '');
+        return prefix + clean + 'K' + suffix;
+    }
+
+    // Abbreviate millions
+    if (num >= 1000000 && num < 1000000000) {
+        const abbreviated = (num / 1000000).toFixed(1);
+        const clean = abbreviated.replace(/\.0$/, '');
+        return prefix + clean + 'M' + suffix;
+    }
+
+    // Abbreviate billions
+    if (num >= 1000000000) {
+        const abbreviated = (num / 1000000000).toFixed(1);
+        const clean = abbreviated.replace(/\.0$/, '');
+        return prefix + clean + 'B' + suffix;
+    }
+
+    return prefix + num.toLocaleString() + suffix;
 }
 
 // ============================================

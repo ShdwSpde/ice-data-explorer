@@ -5,6 +5,7 @@ Curated links to public resources for community awareness and safety
 
 from dash import html, dcc
 import dash_bootstrap_components as dbc
+from components.share import create_alert_share_widget
 
 
 # Resource categories with links and descriptions
@@ -288,6 +289,21 @@ def get_community_resources_content():
                 })
             ], className='container'),
         ], style={'marginBottom': '30px'})
+    )
+
+    # Community Alert Widget - Privacy-focused sharing
+    sections.append(
+        html.Div([
+            html.Div([
+                create_alert_share_widget(),
+            ], className='container'),
+        ], style={
+            'backgroundColor': 'rgba(15, 15, 35, 0.7)',
+            'padding': '30px 0',
+            'marginBottom': '30px',
+            'borderTop': '1px solid rgba(233, 69, 96, 0.3)',
+            'borderBottom': '1px solid rgba(233, 69, 96, 0.3)'
+        })
     )
 
     # Build each category section
