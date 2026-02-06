@@ -366,15 +366,24 @@ def calculate_summary_stats(df, numeric_cols):
     return stats
 
 
-def create_key_stat_card(value, label, subtext=None, color=COLORS['accent']):
-    """Create a visually striking statistic card."""
-    return dbc.Card([
-        dbc.CardBody([
-            html.H2(value, className='stat-value', style={'color': color}),
-            html.P(label, className='stat-label'),
-            html.Small(subtext, className='stat-subtext') if subtext else None,
-        ], className='text-center')
-    ], className='stat-card')
+def create_key_stat_card(value, label, subtext=None, color=COLORS['accent'], card_id=None):
+    """Create a visually striking statistic card with provenance tooltip."""
+    card_id = card_id or f"stat-{label.lower().replace(' ', '-').replace('(', '').replace(')', '').replace('.', '')}"
+    return html.Div([
+        dbc.Card([
+            dbc.CardBody([
+                html.H2(value, className='stat-value', style={'color': color}),
+                html.P(label, className='stat-label'),
+                html.Small(subtext, className='stat-subtext') if subtext else None,
+            ], className='text-center')
+        ], className='stat-card', id=card_id),
+        dbc.Tooltip(
+            id=f"tooltip-{card_id}",
+            target=card_id,
+            placement='bottom',
+            style={'maxWidth': '320px'},
+        ),
+    ])
 
 
 def get_budget_chart():
@@ -2169,7 +2178,9 @@ app.layout = html.Div([
                 ", and other sources."
             ], className='source-note'),
             # Data freshness indicator
-            html.Div(id='freshness-indicator', className='freshness-indicator', style={'marginTop': '15px'})
+            html.Div(id='freshness-indicator', className='freshness-indicator', style={'marginTop': '15px'}),
+            # Global source verification indicator
+            html.Div(id='verification-indicator', style={'marginTop': '8px'})
         ], className='header-content')
     ], id='header-section', className='header header-overview'),
 
@@ -2178,12 +2189,12 @@ app.layout = html.Div([
         html.Div([
             html.H3("THE NUMBERS", className='section-label'),
             dbc.Row([
-                dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated"), md=2),
-                dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high"), md=2),
-                dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees"), md=2),
-                dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year"), md=2),
-                dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)"), md=2),
-                dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate"), md=2),
+                dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated", card_id="stat-budget"), md=2),
+                dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high", card_id="stat-detained"), md=2),
+                dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees", card_id="stat-criminal"), md=2),
+                dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year", card_id="stat-deaths"), md=2),
+                dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)", card_id="stat-increase"), md=2),
+                dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate", card_id="stat-cost"), md=2),
             ], className='stat-row'),
         ], className='container-fluid')
     ], className='stats-banner'),
@@ -2327,6 +2338,166 @@ def update_freshness_indicator(active_tab):
         html.Span(className=f'freshness-dot freshness-{freshness}'),
         html.Span(f"Data from {total} sources • Last update: Jan 2026")
     ]
+
+
+@callback(
+    Output('verification-indicator', 'children'),
+    Input('tabs', 'active_tab')
+)
+def update_verification_indicator(active_tab):
+    """Calculate and display global data verification statistics."""
+    try:
+        provenance = query_data('SELECT verification_status FROM data_provenance')
+        if not provenance:
+            return []
+
+        total = len(provenance)
+        verified = sum(1 for p in provenance if p['verification_status'] == 'verified')
+        govt_only = sum(1 for p in provenance if p['verification_status'] == 'government_only')
+        contested = sum(1 for p in provenance if p['verification_status'] == 'contested')
+        unverified = sum(1 for p in provenance if p['verification_status'] in ('unverified', 'retracted'))
+
+        pct_verified = round(verified / total * 100)
+        pct_govt = round(govt_only / total * 100)
+        pct_contested = round(contested / total * 100)
+        pct_unverified = round(unverified / total * 100)
+
+        # Build the segmented progress bar
+        bar_segments = []
+        if pct_verified > 0:
+            bar_segments.append(html.Div(
+                style={'width': f'{pct_verified}%', 'backgroundColor': '#28a745',
+                       'height': '6px', 'display': 'inline-block'}
+            ))
+        if pct_govt > 0:
+            bar_segments.append(html.Div(
+                style={'width': f'{pct_govt}%', 'backgroundColor': '#ffc107',
+                       'height': '6px', 'display': 'inline-block'}
+            ))
+        if pct_contested > 0:
+            bar_segments.append(html.Div(
+                style={'width': f'{pct_contested}%', 'backgroundColor': '#dc3545',
+                       'height': '6px', 'display': 'inline-block'}
+            ))
+        if pct_unverified > 0:
+            bar_segments.append(html.Div(
+                style={'width': f'{pct_unverified}%', 'backgroundColor': '#6c757d',
+                       'height': '6px', 'display': 'inline-block'}
+            ))
+
+        return html.Div([
+            html.Div(
+                bar_segments,
+                style={'width': '100%', 'borderRadius': '3px', 'overflow': 'hidden',
+                       'backgroundColor': '#2b2d42', 'marginBottom': '4px', 'fontSize': '0'}
+            ),
+            html.Span([
+                html.Span("Data Transparency: ", style={'fontWeight': '600'}),
+                html.Span(f"{pct_verified}% independently verified",
+                          style={'color': '#28a745', 'marginRight': '10px'}),
+                html.Span(" | ", style={'color': '#555'}),
+                html.Span(f" {pct_govt}% government-only",
+                          style={'color': '#ffc107', 'marginRight': '10px'}),
+                html.Span(" | ", style={'color': '#555'}),
+                html.Span(f" {pct_contested}% contested",
+                          style={'color': '#dc3545'}),
+            ], style={'fontSize': '0.75rem', 'color': '#8d99ae', 'letterSpacing': '0.5px'}),
+        ], style={'maxWidth': '600px', 'margin': '0 auto'})
+    except Exception:
+        return []
+
+
+# Mapping from stat card IDs to data_provenance metric names
+STAT_PROVENANCE_MAP = {
+    'stat-budget': '2025 Total Immigration Enforcement Budget',
+    'stat-detained': 'Current Detention Population',
+    'stat-criminal': 'Detainees Without Criminal Record',
+    'stat-deaths': 'Deaths in Custody 2025',
+    'stat-increase': 'Budget Increase Since 1994',
+    'stat-cost': 'Average Cost Per Deportation',
+}
+
+VERIFICATION_BADGES = {
+    'verified': ('Independently Verified', '#28a745', '✓'),
+    'contested': ('Contested Data', '#dc3545', '⚠'),
+    'government_only': ('Government Source Only', '#ffc107', '◐'),
+    'unverified': ('Unverified', '#6c757d', '?'),
+    'retracted': ('Retracted', '#000', '✗'),
+}
+
+
+def _build_stat_tooltip(card_id):
+    """Build tooltip content for a stat card from provenance data."""
+    metric_name = STAT_PROVENANCE_MAP.get(card_id)
+    if not metric_name:
+        return "Source details unavailable"
+
+    try:
+        rows = query_data(
+            '''SELECT dp.*, sr.source_name, sr.source_type, sr.trust_level, sr.url
+               FROM data_provenance dp
+               LEFT JOIN source_registry sr ON dp.primary_source_id = sr.id
+               WHERE dp.metric_name = ?''',
+            [metric_name]
+        )
+        if not rows:
+            return "Provenance data not found"
+
+        row = rows[0]
+        status = row.get('verification_status', 'unverified')
+        badge_label, badge_color, badge_icon = VERIFICATION_BADGES.get(status, ('Unknown', '#6c757d', '?'))
+        source_name = row.get('source_name', 'Unknown')
+        source_url = row.get('methodology_url') or row.get('url', '')
+        caveats = row.get('caveats', '')
+        last_verified = row.get('last_verified', 'Unknown')
+        govt_fig = row.get('government_figure')
+        indep_fig = row.get('independent_figure')
+
+        parts = [
+            html.Div([
+                html.Span(f"{badge_icon} {badge_label}",
+                          style={'color': badge_color, 'fontWeight': '600', 'fontSize': '0.8rem'}),
+            ], style={'marginBottom': '6px'}),
+            html.Div([
+                html.Strong("Source: "), html.Span(source_name)
+            ], style={'fontSize': '0.78rem', 'marginBottom': '3px'}),
+            html.Div([
+                html.Strong("Verified: "), html.Span(str(last_verified))
+            ], style={'fontSize': '0.78rem', 'marginBottom': '3px'}),
+        ]
+
+        if govt_fig and indep_fig and govt_fig != indep_fig:
+            parts.append(html.Div([
+                html.Strong("Govt: "), html.Span(govt_fig, style={'color': '#ffc107'}),
+                html.Span(" vs ", style={'margin': '0 4px'}),
+                html.Strong("Indep: "), html.Span(indep_fig, style={'color': '#28a745'}),
+            ], style={'fontSize': '0.78rem', 'marginBottom': '3px'}))
+
+        if caveats:
+            parts.append(html.Div([
+                html.Em(caveats[:120] + ('...' if len(caveats) > 120 else ''))
+            ], style={'fontSize': '0.72rem', 'color': '#aaa', 'marginTop': '4px'}))
+
+        if source_url:
+            parts.append(html.Div([
+                html.A("View original source →", href=source_url, target='_blank',
+                       style={'fontSize': '0.72rem', 'color': '#118ab2'})
+            ], style={'marginTop': '4px'}))
+
+        return html.Div(parts)
+    except Exception:
+        return "Source details unavailable"
+
+
+# Generate tooltip callbacks for each stat card
+for _card_id in STAT_PROVENANCE_MAP:
+    @callback(
+        Output(f'tooltip-{_card_id}', 'children'),
+        Input(f'{_card_id}', 'n_clicks'),
+        prevent_initial_call=False
+    )
+    def _update_tooltip(n_clicks, cid=_card_id):
+        return _build_stat_tooltip(cid)
 
 
 @callback(
@@ -3809,7 +3980,7 @@ def update_data_table(table_name, year_filter, search_filter, compare_table):
     prevent_initial_call=True
 )
 def export_csv(n_clicks, table_name, stored_data):
-    """Export current data to CSV."""
+    """Export current data to CSV with provenance metadata."""
     if not n_clicks or not stored_data:
         return None
 
@@ -3819,8 +3990,27 @@ def export_csv(n_clicks, table_name, stored_data):
     # Rename columns
     df.columns = [get_column_label(c) for c in df.columns]
 
+    # Add provenance metadata header
+    import io
+    output = io.StringIO()
+    output.write(f"# ICE Data Explorer - {table_name}\n")
+    output.write(f"# Exported: {datetime.now().strftime('%Y-%m-%d %H:%M')}\n")
+    output.write(f"# Source: https://ice-data-explorer.onrender.com\n")
+    try:
+        provenance = query_data(
+            "SELECT verification_status, COUNT(*) as cnt FROM data_provenance GROUP BY verification_status"
+        )
+        if provenance:
+            stats = {row['verification_status']: row['cnt'] for row in provenance}
+            total = sum(stats.values())
+            output.write(f"# Data Integrity: {stats.get('verified', 0)}/{total} metrics independently verified\n")
+    except Exception:
+        pass
+    output.write("#\n")
+    df.to_csv(output, index=False)
+
     filename = f'ice_data_{table_name}.csv'
-    return dcc.send_data_frame(df.to_csv, filename, index=False)
+    return dict(content=output.getvalue(), filename=filename)
 
 
 @callback(
@@ -3831,7 +4021,7 @@ def export_csv(n_clicks, table_name, stored_data):
     prevent_initial_call=True
 )
 def export_json(n_clicks, table_name, stored_data):
-    """Export current data to JSON."""
+    """Export current data to JSON with provenance metadata."""
     if not n_clicks or not stored_data:
         return None
 
@@ -3841,9 +4031,41 @@ def export_json(n_clicks, table_name, stored_data):
         clean_row = {get_column_label(k): v for k, v in row.items() if k not in HIDDEN_COLUMNS}
         clean_data.append(clean_row)
 
+    # Build export with provenance envelope
+    provenance_meta = {
+        'source': 'ICE Data Explorer',
+        'url': 'https://ice-data-explorer.onrender.com',
+        'exported': datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'table': table_name,
+    }
+    try:
+        provenance = query_data(
+            "SELECT verification_status, COUNT(*) as cnt FROM data_provenance GROUP BY verification_status"
+        )
+        if provenance:
+            provenance_meta['verification_summary'] = {
+                row['verification_status']: row['cnt'] for row in provenance
+            }
+        sources = query_data(
+            "SELECT source_name, source_type, trust_level, url FROM source_registry ORDER BY source_name"
+        )
+        if sources:
+            provenance_meta['sources'] = [
+                {'name': s['source_name'], 'type': s['source_type'],
+                 'trust': s['trust_level'], 'url': s['url']}
+                for s in sources
+            ]
+    except Exception:
+        pass
+
+    export_obj = {
+        '_provenance': provenance_meta,
+        'data': clean_data,
+    }
+
     import json
     filename = f'ice_data_{table_name}.json'
-    return dict(content=json.dumps(clean_data, indent=2), filename=filename)
+    return dict(content=json.dumps(export_obj, indent=2), filename=filename)
 
 
 @callback(
