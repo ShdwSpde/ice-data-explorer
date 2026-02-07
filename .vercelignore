@@ -1,0 +1,10 @@
+.git
+.claude
+.playwright-mcp
+__pycache__
+*.pyc
+*.db
+*.sqlite
+data/ice_data.db
+Screenshot*.png
+*.log

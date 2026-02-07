@@ -8,7 +8,10 @@ with official figures often representing only the lower bound.
 """
 
 import numpy as np
-from scipy import stats
+try:
+    from scipy import stats
+except ImportError:
+    stats = None
 import plotly.graph_objects as go
 from dash import html, dcc
 from database import query_data

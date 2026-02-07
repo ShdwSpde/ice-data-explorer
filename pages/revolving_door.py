@@ -8,7 +8,10 @@ edge thickness by connection strength.
 """
 
 import plotly.graph_objects as go
-import networkx as nx
+try:
+    import networkx as nx
+except ImportError:
+    nx = None
 from dash import html, dcc
 import math
 

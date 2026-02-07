@@ -7,8 +7,12 @@ Marks imputed values clearly as "Inferred due to government obfuscation."
 """
 
 import numpy as np
-from scipy import stats
-from scipy.optimize import curve_fit
+try:
+    from scipy import stats
+    from scipy.optimize import curve_fit
+except ImportError:
+    stats = None
+    curve_fit = None
 import plotly.graph_objects as go
 from dash import html, dcc
 from database import query_data
