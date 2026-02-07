@@ -23,7 +23,13 @@ if USE_POSTGRES:
 else:
     import sqlite3
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'data', 'ice_data.db')
+# Use /tmp for serverless environments where project dir is read-only
+_default_db = os.path.join(os.path.dirname(__file__), 'data', 'ice_data.db')
+_data_dir = os.path.dirname(_default_db)
+if os.path.isdir(_data_dir) and os.access(_data_dir, os.W_OK):
+    DB_PATH = _default_db
+else:
+    DB_PATH = os.path.join('/tmp', 'ice_data.db')
 
 
 def get_connection():
