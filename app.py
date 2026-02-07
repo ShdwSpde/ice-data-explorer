@@ -43,7 +43,6 @@ app = dash.Dash(
     __name__,
     external_stylesheets=[
         dbc.themes.BOOTSTRAP,
-        'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+Pro:wght@300;400;600;700&display=swap'
     ],
     suppress_callback_exceptions=True,
     title="The Cost of Enforcement | ICE Data Explorer"
@@ -366,6 +365,67 @@ def calculate_summary_stats(df, numeric_cols):
     return stats
 
 
+def build_contradiction_alert(c):
+    """Build a single contradiction alert card from a contradiction dict."""
+    severity_styles = {
+        'critical': {'bg': '#dc3545', 'border': '#dc3545'},
+        'major': {'bg': '#fd7e14', 'border': '#fd7e14'},
+        'significant': {'bg': '#ffc107', 'border': '#ffc107'},
+        'minor': {'bg': '#6c757d', 'border': '#6c757d'}
+    }
+    severity = c.get('severity', 'minor')
+    styles = severity_styles.get(severity, severity_styles['minor'])
+
+    return html.Div([
+        html.Div([
+            html.Span(f"\u26a0\ufe0f {severity.upper()}", style={
+                'backgroundColor': styles['bg'],
+                'color': 'white',
+                'padding': '3px 10px',
+                'borderRadius': '4px',
+                'fontSize': '0.8rem',
+                'fontWeight': 'bold'
+            }),
+            html.Strong(f"  {c.get('metric_name', '')}", style={'marginLeft': '10px'})
+        ], style={'marginBottom': '10px'}),
+
+        html.Div([
+            html.Div([
+                html.Span("\U0001f3db\ufe0f Government: ", style={'color': '#dc3545', 'fontWeight': 'bold'}),
+                html.Span(f"{c.get('government_value', 'N/A')}", style={'fontWeight': 'bold'}),
+                html.P(f"Source: {c.get('government_source', 'N/A')}", style={'fontSize': '0.8rem', 'marginBottom': '5px'}),
+                html.P(f"Method: {c.get('government_methodology', 'N/A')}", style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
+            ], style={'flex': '1', 'paddingRight': '15px'}),
+
+            html.Div([
+                html.Span("\u2713 Independent: ", style={'color': '#28a745', 'fontWeight': 'bold'}),
+                html.Span(f"{c.get('independent_value', 'N/A')}", style={'fontWeight': 'bold'}),
+                html.P(f"Source: {c.get('independent_source', 'N/A')}", style={'fontSize': '0.8rem', 'marginBottom': '5px'}),
+                html.P(f"Method: {c.get('independent_methodology', 'N/A')}", style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
+            ], style={'flex': '1', 'paddingLeft': '15px', 'borderLeft': "1px solid " + COLORS['grid']})
+        ], style={'display': 'flex', 'marginBottom': '10px'}),
+
+        html.Div([
+            html.Strong("Why the discrepancy: "),
+            html.Span(c.get('discrepancy_reason', 'Unknown'))
+        ], style={'backgroundColor': 'rgba(255,193,7,0.1)', 'padding': '10px', 'borderRadius': '4px', 'marginBottom': '10px'}),
+
+        html.Div([
+            html.Strong("Our recommendation: "),
+            html.Span(c.get('recommended_value', 'N/A'), style={'color': COLORS['accent'], 'fontWeight': 'bold'}),
+            html.Span(f" \u2014 {c.get('recommendation_rationale', '')}", style={'color': COLORS['text_muted']})
+        ]),
+
+        html.P(c.get('notes', ''), style={'fontSize': '0.85rem', 'fontStyle': 'italic', 'marginTop': '10px', 'color': COLORS['text_muted']})
+    ], style={
+        'backgroundColor': COLORS['chart_bg'],
+        'padding': '20px',
+        'borderRadius': '8px',
+        'marginBottom': '20px',
+        'borderLeft': "4px solid " + styles['border']
+    })
+
+
 def create_key_stat_card(value, label, subtext=None, color=COLORS['accent'], card_id=None):
     """Create a visually striking statistic card with provenance tooltip."""
     card_id = card_id or f"stat-{label.lower().replace(' ', '-').replace('(', '').replace(')', '').replace('.', '')}"
@@ -416,7 +476,7 @@ def get_budget_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Immigration Enforcement Budget Growth</b><br><sup>Inflation-Adjusted (Millions USD)</sup>',
             font=dict(size=20)
@@ -496,7 +556,7 @@ def get_detention_population_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>ICE Detention Population Over Time</b><br><sup>Record highs reached in 2025-2026</sup>',
             font=dict(size=20)
@@ -534,7 +594,7 @@ def get_deaths_chart():
         marker_color=colors,
         text=df['deaths'],
         textposition='outside',
-        textfont=dict(color=COLORS['text'], size=14, family='Source Sans Pro'),
+        textfont=dict(color=COLORS['text'], size=14, family='IBM Plex Sans'),
         hovertemplate='<b>%{x}</b><br>Deaths: %{y}<extra></extra>'
     ))
 
@@ -542,7 +602,7 @@ def get_deaths_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Deaths in ICE Custody</b><br><sup>2025: Deadliest year in two decades</sup>',
             font=dict(size=20)
@@ -584,7 +644,7 @@ def get_criminal_status_chart():
     fig.add_annotation(
         text='<b>73%</b><br>No Criminal<br>Record',
         x=0.5, y=0.5,
-        font=dict(size=18, color=COLORS['accent'], family='Playfair Display'),
+        font=dict(size=18, color=COLORS['accent'], family='IBM Plex Sans'),
         showarrow=False
     )
 
@@ -592,7 +652,7 @@ def get_criminal_status_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Who Is Being Detained?</b><br><sup>Criminal conviction status of ICE detainees (2025)</sup>',
             font=dict(size=20)
@@ -623,7 +683,7 @@ def get_deportations_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Annual Deportations</b><br><sup>Formal removals by fiscal year</sup>',
             font=dict(size=20)
@@ -672,7 +732,7 @@ def get_private_prison_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Private Prison Profits from ICE Contracts</b><br><sup>Annual revenue (Millions USD)</sup>',
             font=dict(size=20)
@@ -727,7 +787,7 @@ def get_cost_comparison_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Cost Per Deportation</b><br><sup>Estimates vary widely depending on methodology</sup>',
             font=dict(size=20)
@@ -781,7 +841,7 @@ def get_arrests_by_state_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>ICE Arrests by State (2025)</b><br><sup>Arrests per 100,000 residents</sup>',
             font=dict(size=20)
@@ -826,7 +886,7 @@ def get_2025_allocation_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>$170 Billion: How It\'s Allocated</b><br><sup>2025 "Big Beautiful Bill" breakdown</sup>',
             font=dict(size=20)
@@ -897,7 +957,7 @@ def get_timeline_sentiment_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Media Sentiment Over Time</b><br><sup>Tracking coverage tone from major news sources</sup>',
             font=dict(size=20)
@@ -956,7 +1016,7 @@ def get_sentiment_by_category_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>Average Sentiment by Topic</b><br><sup>How coverage tone varies across categories</sup>',
             font=dict(size=20)
@@ -1074,7 +1134,7 @@ def get_facilities_map():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>ICE Detention Facilities Across the U.S.</b><br><sup>Size indicates current population</sup>',
             font=dict(size=20)
@@ -1280,7 +1340,7 @@ def get_flight_tracker_map():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         geo=dict(
             scope='north america',
             showland=True,
@@ -1393,7 +1453,7 @@ def get_arrests_map():
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         title=dict(
             text='<b>ICE Arrest Rates by State (2025)</b><br><sup>Arrests per 100,000 residents</sup>',
             font=dict(size=20)
@@ -1602,69 +1662,8 @@ def get_methodology_tab_content():
             })
         )
 
-    # Build contradiction alerts
-    contradiction_alerts = []
-    severity_styles = {
-        'critical': {'bg': '#dc3545', 'border': '#dc3545'},
-        'major': {'bg': '#fd7e14', 'border': '#fd7e14'},
-        'significant': {'bg': '#ffc107', 'border': '#ffc107'},
-        'minor': {'bg': '#6c757d', 'border': '#6c757d'}
-    }
-
-    for c in contradictions:
-        severity = c.get('severity', 'minor')
-        styles = severity_styles.get(severity, severity_styles['minor'])
-
-        contradiction_alerts.append(
-            html.Div([
-                html.Div([
-                    html.Span(f"⚠️ {severity.upper()}", style={
-                        'backgroundColor': styles['bg'],
-                        'color': 'white',
-                        'padding': '3px 10px',
-                        'borderRadius': '4px',
-                        'fontSize': '0.8rem',
-                        'fontWeight': 'bold'
-                    }),
-                    html.Strong(f"  {c.get('metric_name', '')}", style={'marginLeft': '10px'})
-                ], style={'marginBottom': '10px'}),
-
-                html.Div([
-                    html.Div([
-                        html.Span("🏛️ Government: ", style={'color': '#dc3545', 'fontWeight': 'bold'}),
-                        html.Span(f"{c.get('government_value', 'N/A')}", style={'fontWeight': 'bold'}),
-                        html.P(f"Source: {c.get('government_source', 'N/A')}", style={'fontSize': '0.8rem', 'marginBottom': '5px'}),
-                        html.P(f"Method: {c.get('government_methodology', 'N/A')}", style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
-                    ], style={'flex': '1', 'paddingRight': '15px'}),
-
-                    html.Div([
-                        html.Span("✓ Independent: ", style={'color': '#28a745', 'fontWeight': 'bold'}),
-                        html.Span(f"{c.get('independent_value', 'N/A')}", style={'fontWeight': 'bold'}),
-                        html.P(f"Source: {c.get('independent_source', 'N/A')}", style={'fontSize': '0.8rem', 'marginBottom': '5px'}),
-                        html.P(f"Method: {c.get('independent_methodology', 'N/A')}", style={'fontSize': '0.8rem', 'color': COLORS['text_muted']})
-                    ], style={'flex': '1', 'paddingLeft': '15px', 'borderLeft': f"1px solid {COLORS['grid']}"})
-                ], style={'display': 'flex', 'marginBottom': '10px'}),
-
-                html.Div([
-                    html.Strong("Why the discrepancy: "),
-                    html.Span(c.get('discrepancy_reason', 'Unknown'))
-                ], style={'backgroundColor': 'rgba(255,193,7,0.1)', 'padding': '10px', 'borderRadius': '4px', 'marginBottom': '10px'}),
-
-                html.Div([
-                    html.Strong("Our recommendation: "),
-                    html.Span(c.get('recommended_value', 'N/A'), style={'color': COLORS['accent'], 'fontWeight': 'bold'}),
-                    html.Span(f" — {c.get('recommendation_rationale', '')}", style={'color': COLORS['text_muted']})
-                ]),
-
-                html.P(c.get('notes', ''), style={'fontSize': '0.85rem', 'fontStyle': 'italic', 'marginTop': '10px', 'color': COLORS['text_muted']})
-            ], style={
-                'backgroundColor': COLORS['chart_bg'],
-                'padding': '20px',
-                'borderRadius': '8px',
-                'marginBottom': '20px',
-                'borderLeft': f"4px solid {styles['border']}"
-            })
-        )
+    # Build contradiction alerts using extracted function
+    contradiction_alerts = [build_contradiction_alert(c) for c in contradictions]
 
     return html.Div([
         # Hero section
@@ -2180,46 +2179,106 @@ app.layout = html.Div([
             # Data freshness indicator
             html.Div(id='freshness-indicator', className='freshness-indicator', style={'marginTop': '15px'}),
             # Global source verification indicator
-            html.Div(id='verification-indicator', style={'marginTop': '8px'})
+            html.Div(id='verification-indicator', style={'marginTop': '8px'}),
+            # Theme toggle
+            html.Button(
+                id='theme-toggle-btn',
+                children='\u263E',
+                className='theme-toggle-inline',
+                title='Toggle light/dark mode',
+            ),
         ], className='header-content')
     ], id='header-section', className='header header-overview'),
 
-    # Key Statistics Banner
+    # Hero Stat Rotation (replaces 6 cramped stat cards)
+    dcc.Interval(id='hero-interval', interval=3000, n_intervals=0),
     html.Div([
         html.Div([
             html.H3("THE NUMBERS", className='section-label'),
-            dbc.Row([
-                dbc.Col(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated", card_id="stat-budget"), md=2),
-                dbc.Col(create_key_stat_card("73,000", "Currently Detained", "Record high", card_id="stat-detained"), md=2),
-                dbc.Col(create_key_stat_card("73%", "No Criminal Record", "Of all detainees", card_id="stat-criminal"), md=2),
-                dbc.Col(create_key_stat_card("32", "Deaths in 2025", "3x previous year", card_id="stat-deaths"), md=2),
-                dbc.Col(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)", card_id="stat-increase"), md=2),
-                dbc.Col(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate", card_id="stat-cost"), md=2),
-            ], className='stat-row'),
+            html.Div([
+                html.Div(create_key_stat_card("$170B", "2025 Budget", "Largest ever allocated", card_id="stat-budget"),
+                         id='hero-slot-0', className='hero-slot', style={'display': 'block'}),
+                html.Div(create_key_stat_card("73,000", "Currently Detained", "Record high", card_id="stat-detained"),
+                         id='hero-slot-1', className='hero-slot', style={'display': 'none'}),
+                html.Div(create_key_stat_card("73%", "No Criminal Record", "Of all detainees", card_id="stat-criminal"),
+                         id='hero-slot-2', className='hero-slot', style={'display': 'none'}),
+                html.Div(create_key_stat_card("32", "Deaths in 2025", "3x previous year", card_id="stat-deaths"),
+                         id='hero-slot-3', className='hero-slot', style={'display': 'none'}),
+                html.Div(create_key_stat_card("765%", "Budget Increase", "Since 1994 (adj.)", card_id="stat-increase"),
+                         id='hero-slot-4', className='hero-slot', style={'display': 'none'}),
+                html.Div(create_key_stat_card("$70,236", "Cost Per Deportation", "Average estimate", card_id="stat-cost"),
+                         id='hero-slot-5', className='hero-slot', style={'display': 'none'}),
+            ], className='hero-stat-container'),
+            # Dot indicators
+            html.Div([
+                html.Span(className='hero-dot active', id='hero-dot-0'),
+                html.Span(className='hero-dot', id='hero-dot-1'),
+                html.Span(className='hero-dot', id='hero-dot-2'),
+                html.Span(className='hero-dot', id='hero-dot-3'),
+                html.Span(className='hero-dot', id='hero-dot-4'),
+                html.Span(className='hero-dot', id='hero-dot-5'),
+            ], className='hero-dots'),
         ], className='container-fluid')
     ], className='stats-banner'),
 
-    # Navigation Tabs
+    # Tab state store
+    dcc.Store(id='active-tab-store', data='tab-landing'),
+
+    # Theme persistence store
+    dcc.Store(id='theme-store', storage_type='local', data='dark'),
+
+    # Navigation (grouped into categories)
     html.Div([
-        dbc.Tabs([
-            dbc.Tab(label="Redacted", tab_id="tab-landing"),
-            dbc.Tab(label="Overview", tab_id="tab-overview"),
-            dbc.Tab(label="Funding & Budget", tab_id="tab-funding"),
-            dbc.Tab(label="Detention", tab_id="tab-detention"),
-            dbc.Tab(label="Deportations", tab_id="tab-deportations"),
-            dbc.Tab(label="Deaths & Abuse", tab_id="tab-deaths"),
-            dbc.Tab(label="Costs & Profits", tab_id="tab-costs"),
-            dbc.Tab(label="Flight Tracker", tab_id="tab-flights"),
-            dbc.Tab(label="Your Cost", tab_id="tab-calculator"),
-            dbc.Tab(label="Timeline", tab_id="tab-timeline"),
-            dbc.Tab(label="Map", tab_id="tab-map"),
-            dbc.Tab(label="Facilities", tab_id="tab-facilities"),
-            dbc.Tab(label="Legislation", tab_id="tab-legislation"),
-            dbc.Tab(label="Data Explorer", tab_id="tab-explorer"),
-            dbc.Tab(label="Narratives", tab_id="tab-narratives"),
-            dbc.Tab(label="Resources", tab_id="tab-resources"),
-            dbc.Tab(label="Methodology", tab_id="tab-methodology"),
-        ], id="tabs", active_tab="tab-overview", className='nav-tabs-custom')
+        dbc.Nav([
+            # Direct nav items (Data)
+            dbc.NavItem(dbc.NavLink("Redacted", id="nav-tab-landing", href="#", className="nav-link")),
+            dbc.NavItem(dbc.NavLink("Overview", id="nav-tab-overview", href="#", className="nav-link")),
+            dbc.NavItem(dbc.NavLink("Budget", id="nav-tab-funding", href="#", className="nav-link")),
+            dbc.NavItem(dbc.NavLink("Detention", id="nav-tab-detention", href="#", className="nav-link")),
+            dbc.NavItem(dbc.NavLink("Deportations", id="nav-tab-deportations", href="#", className="nav-link")),
+            dbc.NavItem(dbc.NavLink("Deaths", id="nav-tab-deaths", href="#", className="nav-link")),
+
+            # Dropdown: Analysis
+            dbc.DropdownMenu(
+                [
+                    dbc.DropdownMenuItem("Costs & Profits", id="nav-tab-costs"),
+                    dbc.DropdownMenuItem("Narratives", id="nav-tab-narratives"),
+                    dbc.DropdownMenuItem("Timeline", id="nav-tab-timeline"),
+                ],
+                label="Analysis",
+                nav=True,
+                in_navbar=True,
+                className="nav-dropdown",
+            ),
+
+            # Dropdown: Tools
+            dbc.DropdownMenu(
+                [
+                    dbc.DropdownMenuItem("Data Explorer", id="nav-tab-explorer"),
+                    dbc.DropdownMenuItem("Your Cost", id="nav-tab-calculator"),
+                    dbc.DropdownMenuItem("Map", id="nav-tab-map"),
+                    dbc.DropdownMenuItem("Facilities", id="nav-tab-facilities"),
+                    dbc.DropdownMenuItem("Flight Tracker", id="nav-tab-flights"),
+                ],
+                label="Tools",
+                nav=True,
+                in_navbar=True,
+                className="nav-dropdown",
+            ),
+
+            # Dropdown: Reference
+            dbc.DropdownMenu(
+                [
+                    dbc.DropdownMenuItem("Legislation", id="nav-tab-legislation"),
+                    dbc.DropdownMenuItem("Resources", id="nav-tab-resources"),
+                    dbc.DropdownMenuItem("Methodology", id="nav-tab-methodology"),
+                ],
+                label="Reference",
+                nav=True,
+                in_navbar=True,
+                className="nav-dropdown",
+            ),
+        ], className='nav-tabs-custom', id='main-nav'),
     ], className='nav-container'),
 
     # Main Content Area
@@ -2291,9 +2350,44 @@ app.layout = html.Div([
 # CALLBACKS
 # ============================================
 
+# All nav item IDs that map to tabs
+_NAV_TAB_IDS = [
+    'nav-tab-landing', 'nav-tab-overview', 'nav-tab-funding', 'nav-tab-detention',
+    'nav-tab-deportations', 'nav-tab-deaths', 'nav-tab-costs', 'nav-tab-narratives',
+    'nav-tab-timeline', 'nav-tab-explorer', 'nav-tab-calculator', 'nav-tab-map',
+    'nav-tab-facilities', 'nav-tab-flights', 'nav-tab-legislation', 'nav-tab-resources',
+    'nav-tab-methodology',
+]
+
+@callback(
+    Output('active-tab-store', 'data'),
+    [Input(nid, 'n_clicks') for nid in _NAV_TAB_IDS],
+    prevent_initial_call=True
+)
+def nav_click_to_tab(*args):
+    """Convert nav item clicks to tab IDs stored in dcc.Store."""
+    triggered = dash.ctx.triggered_id
+    if triggered and triggered.startswith('nav-'):
+        # 'nav-tab-overview' -> 'tab-overview'
+        return triggered.replace('nav-', '', 1)
+    return dash.no_update
+
+
+@callback(
+    Output('active-tab-store', 'data', allow_duplicate=True),
+    Input('goto-methodology-btn', 'n_clicks'),
+    prevent_initial_call=True
+)
+def goto_methodology_from_overview(n_clicks):
+    """Navigate to methodology tab from overview contradictions button."""
+    if n_clicks:
+        return 'tab-methodology'
+    return dash.no_update
+
+
 @callback(
     Output('header-section', 'className'),
-    Input('tabs', 'active_tab')
+    Input('active-tab-store', 'data')
 )
 def update_header_background(active_tab):
     """Update header background image based on active tab."""
@@ -2321,7 +2415,7 @@ def update_header_background(active_tab):
 
 @callback(
     Output('freshness-indicator', 'children'),
-    Input('tabs', 'active_tab')
+    Input('active-tab-store', 'data')
 )
 def update_freshness_indicator(active_tab):
     """Update data freshness indicator."""
@@ -2342,7 +2436,7 @@ def update_freshness_indicator(active_tab):
 
 @callback(
     Output('verification-indicator', 'children'),
-    Input('tabs', 'active_tab')
+    Input('active-tab-store', 'data')
 )
 def update_verification_indicator(active_tab):
     """Calculate and display global data verification statistics."""
@@ -2500,9 +2594,39 @@ for _card_id in STAT_PROVENANCE_MAP:
         return _build_stat_tooltip(cid)
 
 
+# Hero stat rotation callback
+@callback(
+    [Output(f'hero-slot-{i}', 'style') for i in range(6)] +
+    [Output(f'hero-dot-{i}', 'className') for i in range(6)],
+    Input('hero-interval', 'n_intervals')
+)
+def rotate_hero_stat(n_intervals):
+    active = n_intervals % 6
+    slot_styles = [{'display': 'block'} if i == active else {'display': 'none'} for i in range(6)]
+    dot_classes = ['hero-dot active' if i == active else 'hero-dot' for i in range(6)]
+    return slot_styles + dot_classes
+
+
+# Overview contradictions (top 3)
+@callback(
+    Output('overview-contradictions', 'children'),
+    Input('active-tab-store', 'data')
+)
+def update_overview_contradictions(active_tab):
+    if active_tab != 'tab-overview':
+        return []
+    try:
+        contradictions = query_data(
+            'SELECT * FROM source_contradictions ORDER BY severity DESC LIMIT 3'
+        )
+        return [build_contradiction_alert(c) for c in contradictions]
+    except Exception:
+        return []
+
+
 @callback(
     Output('tab-content', 'children'),
-    Input('tabs', 'active_tab')
+    Input('active-tab-store', 'data')
 )
 def render_tab_content(active_tab):
     """Render content for each tab."""
@@ -2607,6 +2731,20 @@ def render_tab_content(active_tab):
                     html.Footer("— Brennan Center for Justice", className='quote-source')
                 ], className='pull-quote')
             ], className='container'),
+
+            # Data Discrepancies (top 3 from methodology)
+            html.Div([
+                html.Div([
+                    html.H3("Data Discrepancies", className='section-title',
+                             style={'fontSize': '1.5rem'}),
+                    html.P("Where government claims diverge from independent findings.",
+                           style={'color': COLORS['text_muted'], 'marginBottom': '20px'}),
+                    html.Div(id='overview-contradictions'),
+                    dbc.Button("See all in Methodology \u2192", id='goto-methodology-btn',
+                               color='link', style={'color': COLORS['accent'], 'padding': '0',
+                                                     'fontSize': '0.9rem', 'fontWeight': '600'}),
+                ], className='container'),
+            ], style={'marginTop': '40px', 'marginBottom': '40px'}),
 
             # Section indicators for scrollytelling
             html.Div([
@@ -3823,7 +3961,7 @@ def generate_visualization(n_clicks, table_name, year_filter):
         template='plotly_dark',
         paper_bgcolor=COLORS['chart_bg'],
         plot_bgcolor=COLORS['chart_bg'],
-        font=dict(family='Source Sans Pro', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans', color=COLORS['text']),
         margin=dict(t=50, b=50),
         height=400
     )
@@ -3897,12 +4035,12 @@ def update_data_table(table_name, year_filter, search_filter, compare_table):
             'backgroundColor': COLORS['secondary'],
             'color': COLORS['text'],
             'fontWeight': 'bold',
-            'fontFamily': 'Source Sans Pro'
+            'fontFamily': 'IBM Plex Sans'
         },
         style_cell={
             'backgroundColor': COLORS['primary'],
             'color': COLORS['text'],
-            'fontFamily': 'Source Sans Pro',
+            'fontFamily': 'IBM Plex Sans',
             'padding': '12px',
             'textAlign': 'left',
             'border': f'1px solid {COLORS["grid"]}',
@@ -3947,12 +4085,12 @@ def update_data_table(table_name, year_filter, search_filter, compare_table):
                     'backgroundColor': COLORS['blue'],
                     'color': COLORS['text'],
                     'fontWeight': 'bold',
-                    'fontFamily': 'Source Sans Pro'
+                    'fontFamily': 'IBM Plex Sans'
                 },
                 style_cell={
                     'backgroundColor': COLORS['primary'],
                     'color': COLORS['text'],
-                    'fontFamily': 'Source Sans Pro',
+                    'fontFamily': 'IBM Plex Sans',
                     'padding': '10px',
                     'textAlign': 'left',
                     'border': f'1px solid {COLORS["grid"]}'
@@ -4160,8 +4298,33 @@ clientside_callback(
         return window.dash_clientside.no_update;
     }
     """,
-    Output('tabs', 'className'),
-    Input('tabs', 'active_tab')
+    Output('main-nav', 'className'),
+    Input('active-tab-store', 'data')
+)
+
+
+# Theme toggle: clientside callback
+clientside_callback(
+    """
+    function(n_clicks, current_theme) {
+        if (!n_clicks) {
+            // On initial load, restore from store
+            if (current_theme === 'light') {
+                document.body.classList.add('theme-light');
+                return ['light', '\u2600'];
+            }
+            return [current_theme || 'dark', '\u263E'];
+        }
+        var isLight = document.body.classList.toggle('theme-light');
+        var newTheme = isLight ? 'light' : 'dark';
+        var icon = isLight ? '\u2600' : '\u263E';
+        return [newTheme, icon];
+    }
+    """,
+    [Output('theme-store', 'data'),
+     Output('theme-toggle-btn', 'children')],
+    Input('theme-toggle-btn', 'n_clicks'),
+    State('theme-store', 'data')
 )
 
 

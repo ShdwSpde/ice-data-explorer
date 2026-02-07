@@ -258,7 +258,7 @@ def _build_logistics_figure(df: pd.DataFrame) -> go.Figure:
         template="plotly_dark",
         paper_bgcolor=COLORS["bg"],
         plot_bgcolor=COLORS["bg"],
-        font=dict(family="Source Sans Pro, sans-serif", color=COLORS["text"]),
+        font=dict(family="IBM Plex Sans, sans-serif", color=COLORS["text"]),
         title=dict(
             text=(
                 "<b>Detention Logistics Network</b><br>"
@@ -296,7 +296,7 @@ def _build_logistics_figure(df: pd.DataFrame) -> go.Figure:
             bgcolor="rgba(15,15,35,0.92)",
             bordercolor=COLORS["accent"],
             font_size=13,
-            font_family="Source Sans Pro, sans-serif",
+            font_family="IBM Plex Sans, sans-serif",
         ),
     )
 

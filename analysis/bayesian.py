@@ -213,7 +213,7 @@ def create_true_range_chart(metric_name, posterior, unit='', description=''):
     fig.update_layout(
         title=dict(
             text=f"<b>{metric_name}</b><br><sup>True Range Estimation</sup>",
-            font=dict(size=16, color='white', family='Libre Baskerville')
+            font=dict(size=16, color='white', family='IBM Plex Sans')
         ),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

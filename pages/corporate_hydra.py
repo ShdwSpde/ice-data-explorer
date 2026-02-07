@@ -211,7 +211,7 @@ def create_hydra_network():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>The Corporate Hydra</b><br>'
                  '<sup>How parent companies dominate multiple enforcement sectors</sup>',

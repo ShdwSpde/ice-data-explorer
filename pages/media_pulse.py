@@ -163,7 +163,7 @@ def create_sentiment_pulse():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Media Coverage Pulse</b><br>'
                  '<sup>90-day sentiment breakdown by coverage type</sup>',
@@ -223,7 +223,7 @@ def create_outlet_breakdown():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Coverage by Outlet Type</b>',
             font=dict(size=14),

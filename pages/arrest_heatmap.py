@@ -156,7 +156,7 @@ def create_heatmap_figure():
             zoom=3.2,
         ),
         paper_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>ICE Enforcement Intensity by Metro Area</b><br>'
                  '<sup>Arrests per 100k immigrant population</sup>',
@@ -192,7 +192,7 @@ def create_policy_comparison_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Enforcement Intensity by Jurisdiction Policy</b>',
             font=dict(size=16),

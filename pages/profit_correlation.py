@@ -175,7 +175,7 @@ def create_correlation_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Policy → Profit: The Correlation</b><br>'
                  '<sup>Stock prices, policy events, and contract awards 2017-2024</sup>',

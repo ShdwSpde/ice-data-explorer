@@ -96,7 +96,7 @@ def create_roi_bar_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Return on Lobbying Investment</b><br>'
                  '<sup>Contract dollars received per lobbying dollar spent</sup>',

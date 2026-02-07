@@ -329,7 +329,7 @@ def create_budget_sankey(flow_data, title="Federal Enforcement Budget Flow"):
     fig.update_layout(
         title=dict(
             text=title,
-            font=dict(size=18, color='white', family='Libre Baskerville')
+            font=dict(size=18, color='white', family='IBM Plex Sans')
         ),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

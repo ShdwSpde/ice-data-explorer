@@ -234,7 +234,7 @@ def create_deportation_globe():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Deportation Flight Network</b><br>'
                  '<sup>ICE Air Operations routes and volumes</sup>',

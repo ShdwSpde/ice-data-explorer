@@ -251,7 +251,7 @@ def create_imputation_chart(metric_name, known_years, known_values,
     fig.update_layout(
         title=dict(
             text=metric_name,
-            font=dict(size=16, color='white', family='Libre Baskerville')
+            font=dict(size=16, color='white', family='IBM Plex Sans')
         ),
         paper_bgcolor='rgba(0,0,0,0)',
         plot_bgcolor='rgba(0,0,0,0)',

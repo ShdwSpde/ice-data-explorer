@@ -210,7 +210,7 @@ def create_sankey_diagram():
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
         font=dict(
-            family='Source Sans Pro, sans-serif',
+            family='IBM Plex Sans, sans-serif',
             color=COLORS['text'],
             size=12,
         ),

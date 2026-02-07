@@ -133,7 +133,7 @@ def create_competition_chart():
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
         plot_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Sole-Source Contract Prevalence</b><br>'
                  '<sup>Percentage of contract value awarded without competition</sup>',
@@ -190,7 +190,7 @@ def create_vendor_concentration_chart():
     fig.update_layout(
         template='plotly_dark',
         paper_bgcolor=COLORS['bg'],
-        font=dict(family='Source Sans Pro, sans-serif', color=COLORS['text']),
+        font=dict(family='IBM Plex Sans, sans-serif', color=COLORS['text']),
         title=dict(
             text='<b>Contract Value by Vendor</b><br>'
                  '<sup>Size = contract value | Color = competition level</sup>',
