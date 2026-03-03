@@ -151,6 +151,70 @@
       <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
                 position="0 1.1 5" rotation="0 180 0"></a-entity>
     </a-entity>
+
+    <!-- Room: Timeline Walk -->
+    <a-entity id="room-timeline" room="timeline" spawn="0 0 2" visible="false">
+      <a-text
+        value="TIMELINE WALK"
+        position="0 3 1"
+        align="center"
+        color="#333"
+        width="6"
+        font="monoid"
+      ></a-text>
+      <a-text
+        value="Walk forward through 30 years of enforcement"
+        position="0 2.5 1"
+        align="center"
+        color="#999"
+        width="3"
+        font="monoid"
+      ></a-text>
+
+      <a-entity id="timeline-segments"></a-entity>
+
+      <!-- Return portal (at start of corridor) -->
+      <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
+                position="0 1.1 4" rotation="0 180 0"></a-entity>
+    </a-entity>
+
+    <!-- Room: Raid Footage -->
+    <a-entity id="room-footage" room="footage" spawn="0 0 0" visible="false">
+      <!-- Content warning gate -->
+      <a-entity content-gate="room: footage" position="0 1.6 -2"></a-entity>
+
+      <a-text
+        value="RAID FOOTAGE"
+        position="0 3.5 0"
+        align="center"
+        color="#555"
+        width="5"
+        font="monoid"
+      ></a-text>
+
+      <!-- Video panels in a ring -->
+      <a-entity video-panel="title: FOIA Release — Houston Workplace Raid; date: 2024-03-15; location: Houston, TX; statLabel: Arrests that week; statValue: 280; source: ICE ERO; trust: govt"
+                position="-2.5 1.8 -3" rotation="0 30 0"></a-entity>
+
+      <a-entity video-panel="title: C-SPAN — Oversight Hearing Testimony; date: 2023-11-08; location: Washington, DC; statLabel: Deaths in custody (year); statValue: 28; source: DHS OIG; trust: contested"
+                position="0 2.2 -4" rotation="0 0 0"></a-entity>
+
+      <a-entity video-panel="title: Community Documentation — Residential Raid; date: 2024-07-22; location: Nashville, TN; statLabel: Local arrests; statValue: 45; source: ACLU; trust: verified"
+                position="2.5 1.8 -3" rotation="0 -30 0"></a-entity>
+
+      <a-entity video-panel="title: News Broadcast — Detention Facility Conditions; date: 2024-01-10; location: Adelanto, CA; statLabel: Facility capacity; statValue: 1,940; source: GEO Group; trust: contested"
+                position="-3 1.5 -1" rotation="0 60 0"></a-entity>
+
+      <a-entity video-panel="title: FOIA Release — Airport Transfer Operations; date: 2023-09-03; location: Alexandria, LA; statLabel: Transfers that month; statValue: 3,200; source: ICE Air; trust: govt"
+                position="3 1.5 -1" rotation="0 -60 0"></a-entity>
+
+      <a-entity video-panel="title: Congressional Record — Family Separation Testimony; date: 2024-05-14; location: Washington, DC; statLabel: Children separated (total); statValue: 5,500+; source: HHS OIG; trust: verified"
+                position="0 2 -2" rotation="0 0 0"></a-entity>
+
+      <!-- Exit portal (always visible, glowing white) -->
+      <a-entity portal="target: hub; label: Exit; color: #FFFFFF"
+                position="0 1.1 4" rotation="0 180 0"></a-entity>
+    </a-entity>
   </a-scene>
 
   <script src="js/components/room-manager.js"></script>
@@ -162,6 +226,7 @@
   <script src="js/components/flow-arc.js"></script>
   <script src="js/landscape.js"></script>
   <script src="js/globe.js"></script>
+  <script src="js/timeline.js"></script>
   <script src="js/data-api.js"></script>
   <script src="js/app.js"></script>
 </body>
