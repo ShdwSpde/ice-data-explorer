@@ -12,3 +12,65 @@
   z-index: 999;
   pointer-events: none;
 }
+
+/* Persistent back button — visible on desktop when not in hub */
+#back-to-hub {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 9999;
+  display: none;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: #333;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #ccc;
+  padding: 10px 18px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, border-color 0.2s;
+}
+#back-to-hub:hover {
+  background: #fff;
+  border-color: #999;
+}
+#back-to-hub.visible {
+  display: block;
+}
+
+/* Room label overlay — shows current room name */
+#room-label {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #666;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 6px 16px;
+  border: 1px solid #ddd;
+  display: none;
+  pointer-events: none;
+}
+#room-label.visible {
+  display: block;
+}
+
+/* Navigation hint at bottom center */
+#nav-hint {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: #999;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 14px;
+  border: 1px solid #eee;
+  pointer-events: none;
+}

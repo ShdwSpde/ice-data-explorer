@@ -60,7 +60,7 @@
     <a-entity id="hub" room="hub" spawn="0 0 0">
       <a-text
         value="ICE DATA EXPLORER"
-        position="0 3 -5"
+        position="0 3.8 -4"
         align="center"
         color="#333"
         width="8"
@@ -68,25 +68,25 @@
       ></a-text>
       <a-text
         value="VR EXPERIENCE"
-        position="0 2.5 -5"
+        position="0 3.3 -4"
         align="center"
         color="#666"
         width="4"
         font="monoid"
       ></a-text>
 
-      <!-- Portals -->
+      <!-- Portals — spread in arc, 5m radius, 30° apart -->
       <a-entity portal="target: landscape; label: Data Landscape; color: #4CC3D9"
-                position="-3 1.1 -4.5" rotation="0 20 0"></a-entity>
-
-      <a-entity portal="target: globe; label: Facility Globe; color: #EF2D5E"
-                position="3 1.1 -4.5" rotation="0 -20 0"></a-entity>
+                position="-4.3 1.1 -2.5" rotation="0 35 0"></a-entity>
 
       <a-entity portal="target: timeline; label: Timeline Walk; color: #FFC65D"
-                position="0 1.1 -5" rotation="0 0 0"></a-entity>
+                position="-1.5 1.1 -4.8" rotation="0 12 0"></a-entity>
+
+      <a-entity portal="target: globe; label: Facility Globe; color: #EF2D5E"
+                position="1.5 1.1 -4.8" rotation="0 -12 0"></a-entity>
 
       <a-entity portal="target: footage; label: Raid Footage; color: #666666"
-                position="0 1.1 -3" rotation="0 0 0"></a-entity>
+                position="4.3 1.1 -2.5" rotation="0 -35 0"></a-entity>
     </a-entity>
 
     <!-- Room: Data Landscape -->
@@ -112,7 +112,7 @@
       <a-entity data-terrain position="0 0 0"></a-entity>
 
       <!-- Return portal -->
-      <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
+      <a-entity portal="target: hub; label: ← Back to Hub; color: #333333"
                 position="0 1.1 8" rotation="0 180 0"></a-entity>
     </a-entity>
 
@@ -148,7 +148,7 @@
       <a-entity id="globe-arcs" position="0 1.6 0"></a-entity>
 
       <!-- Return portal -->
-      <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
+      <a-entity portal="target: hub; label: ← Back to Hub; color: #333333"
                 position="0 1.1 5" rotation="0 180 0"></a-entity>
     </a-entity>
 
@@ -174,7 +174,7 @@
       <a-entity id="timeline-segments"></a-entity>
 
       <!-- Return portal (at start of corridor) -->
-      <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
+      <a-entity portal="target: hub; label: ← Back to Hub; color: #333333"
                 position="0 1.1 4" rotation="0 180 0"></a-entity>
     </a-entity>
 
@@ -192,27 +192,27 @@
         font="monoid"
       ></a-text>
 
-      <!-- Video panels in a ring -->
+      <!-- Video panels in a ring — 5m radius, 60° apart, all at eye level -->
       <a-entity video-panel="title: FOIA Release — Houston Workplace Raid; date: 2024-03-15; location: Houston, TX; statLabel: Arrests that week; statValue: 280; source: ICE ERO; trust: govt"
-                position="-2.5 1.8 -3" rotation="0 30 0"></a-entity>
+                position="-4.3 1.8 -2.5" rotation="0 60 0"></a-entity>
 
       <a-entity video-panel="title: C-SPAN — Oversight Hearing Testimony; date: 2023-11-08; location: Washington, DC; statLabel: Deaths in custody (year); statValue: 28; source: DHS OIG; trust: contested"
-                position="0 2.2 -4" rotation="0 0 0"></a-entity>
+                position="-2.5 1.8 -4.3" rotation="0 30 0"></a-entity>
 
       <a-entity video-panel="title: Community Documentation — Residential Raid; date: 2024-07-22; location: Nashville, TN; statLabel: Local arrests; statValue: 45; source: ACLU; trust: verified"
-                position="2.5 1.8 -3" rotation="0 -30 0"></a-entity>
+                position="2.5 1.8 -4.3" rotation="0 -30 0"></a-entity>
 
       <a-entity video-panel="title: News Broadcast — Detention Facility Conditions; date: 2024-01-10; location: Adelanto, CA; statLabel: Facility capacity; statValue: 1,940; source: GEO Group; trust: contested"
-                position="-3 1.5 -1" rotation="0 60 0"></a-entity>
+                position="4.3 1.8 -2.5" rotation="0 -60 0"></a-entity>
 
       <a-entity video-panel="title: FOIA Release — Airport Transfer Operations; date: 2023-09-03; location: Alexandria, LA; statLabel: Transfers that month; statValue: 3,200; source: ICE Air; trust: govt"
-                position="3 1.5 -1" rotation="0 -60 0"></a-entity>
+                position="4.3 1.8 2.5" rotation="0 -120 0"></a-entity>
 
       <a-entity video-panel="title: Congressional Record — Family Separation Testimony; date: 2024-05-14; location: Washington, DC; statLabel: Children separated (total); statValue: 5,500+; source: HHS OIG; trust: verified"
-                position="0 2 -2" rotation="0 0 0"></a-entity>
+                position="-4.3 1.8 2.5" rotation="0 120 0"></a-entity>
 
-      <!-- Exit portal (always visible, glowing white) -->
-      <a-entity portal="target: hub; label: Exit; color: #FFFFFF"
+      <!-- Exit portal (always visible) -->
+      <a-entity portal="target: hub; label: ← Exit to Hub; color: #333333"
                 position="0 1.1 4" rotation="0 180 0"></a-entity>
     </a-entity>
   </a-scene>
