@@ -1,5 +1,7 @@
 /**
  * portal — Clickable gateway that triggers room transitions
+ * Includes a cooldown after room changes to prevent accidental re-triggers
+ * from gaze cursor.
  * Usage: <a-entity portal="target: landscape; label: Data Landscape; color: #4CC3D9"></a-entity>
  */
 AFRAME.registerComponent('portal', {
@@ -13,6 +15,7 @@ AFRAME.registerComponent('portal', {
 
   init: function () {
     const d = this.data;
+    this.cooldown = false;
 
     // Portal frame (rectangle outline)
     const frame = document.createElement('a-entity');
@@ -55,8 +58,12 @@ AFRAME.registerComponent('portal', {
     label.setAttribute('font', 'monoid');
     this.el.appendChild(label);
 
-    // Click handler
+    // Click handler with cooldown protection
     frame.addEventListener('click', () => {
+      if (this.cooldown) {
+        console.log(`[portal] Click ignored (cooldown): ${d.target}`);
+        return;
+      }
       console.log(`[portal] Clicked: ${d.target}`);
       this.el.sceneEl.emit('room-change', { room: d.target });
     });
@@ -67,6 +74,13 @@ AFRAME.registerComponent('portal', {
     });
     frame.addEventListener('mouseleave', () => {
       frame.setAttribute('material', 'opacity', 0.15);
+    });
+
+    // Cooldown after any room change — prevents gaze cursor from
+    // immediately re-triggering a portal when entering a new room
+    this.el.sceneEl.addEventListener('room-changed', () => {
+      this.cooldown = true;
+      setTimeout(() => { this.cooldown = false; }, 2000);
     });
   }
 });
