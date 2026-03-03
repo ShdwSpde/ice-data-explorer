@@ -115,6 +115,42 @@
       <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
                 position="0 1.1 8" rotation="0 180 0"></a-entity>
     </a-entity>
+
+    <!-- Room: Facility Globe -->
+    <a-entity id="room-globe" room="globe" spawn="0 0 0" visible="false">
+      <a-text
+        value="FACILITY GLOBE"
+        position="0 5 0"
+        align="center"
+        color="#333"
+        width="6"
+        font="monoid"
+      ></a-text>
+
+      <!-- Inverted globe sphere -->
+      <a-sphere
+        radius="4.5"
+        position="0 1.6 0"
+        material="color: #F0F0F0; side: back; wireframe: true; opacity: 0.15"
+      ></a-sphere>
+
+      <!-- Landmass sphere (slightly smaller) -->
+      <a-sphere
+        radius="4.48"
+        position="0 1.6 0"
+        material="color: #FAFAFA; side: back; opacity: 0.05; transparent: true"
+      ></a-sphere>
+
+      <!-- Facility markers container -->
+      <a-entity id="globe-markers" position="0 1.6 0"></a-entity>
+
+      <!-- Flow arcs container -->
+      <a-entity id="globe-arcs" position="0 1.6 0"></a-entity>
+
+      <!-- Return portal -->
+      <a-entity portal="target: hub; label: Return to Hub; color: #CCCCCC"
+                position="0 1.1 5" rotation="0 180 0"></a-entity>
+    </a-entity>
   </a-scene>
 
   <script src="js/components/room-manager.js"></script>
@@ -122,7 +158,10 @@
   <script src="js/components/tooltip-3d.js"></script>
   <script src="js/components/data-bar.js"></script>
   <script src="js/components/data-terrain.js"></script>
+  <script src="js/components/globe-marker.js"></script>
+  <script src="js/components/flow-arc.js"></script>
   <script src="js/landscape.js"></script>
+  <script src="js/globe.js"></script>
   <script src="js/data-api.js"></script>
   <script src="js/app.js"></script>
 </body>
