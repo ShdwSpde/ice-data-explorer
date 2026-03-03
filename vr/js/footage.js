@@ -8,45 +8,45 @@ document.addEventListener('DOMContentLoaded', () => {
   // Context data for the 6 video panels (matches order in index.html)
   const FOOTAGE_CONTEXT = [
     {
-      body: 'FOIA-released body camera footage from a workplace raid in Houston. ICE Enforcement and Removal Operations conducted the operation targeting undocumented workers. Raids like this increased 40% year-over-year.',
-      stat: '280',
-      statLabel: 'Arrests that week',
-      source: 'ICE ERO FOIA Release',
+      body: 'FOIA-released body camera footage from a Houston workplace raid. Operations like this expanded under Operation Metro Surge. 12,000 new agents hired with training cut from 22 weeks to 8. Raids increased 40% year-over-year. 540,000 deportation target for 2025.',
+      stat: '4,000+',
+      statLabel: 'Arrests in Operation Metro Surge alone',
+      source: 'ICE ERO / Brookings Institution',
       trust: 'govt'
     },
     {
-      body: 'Congressional oversight hearing where DHS officials testified on detention conditions. Inspector General reports documented systemic medical neglect across facilities.',
-      stat: '28',
-      statLabel: 'Deaths in custody (that year)',
-      source: 'DHS OIG / C-SPAN',
+      body: 'Congressional oversight hearing on detention deaths. In 2025, 32 people died in ICE custody — triple the previous year. 95% of deaths preventable per Physicians for Human Rights. At Fort Bliss, a medical examiner ruled one death a homicide by guards. ICE had called it suicide.',
+      stat: '38+',
+      statLabel: 'Deaths in ICE custody (2025-26)',
+      source: 'DHS OIG / The Appeal / PBS',
       trust: 'contested'
     },
     {
-      body: 'Community-documented footage of a residential raid in Nashville. Bystanders recorded ICE agents entering a neighborhood. ACLU filed complaints about Fourth Amendment violations.',
-      stat: '45',
-      statLabel: 'Local arrests',
-      source: 'ACLU Tennessee',
+      body: 'Community footage of a residential raid. Police in 18+ "sanctuary cities" documented illegally sharing data with ICE. In D.C., officers patrolled with DHS despite Sanctuary Values Act. In Providence, police set perimeters for ICE arrests. None were self-reported.',
+      stat: '18+',
+      statLabel: 'Sanctuary cities with police-ICE violations',
+      source: 'The Appeal / ACLU',
       trust: 'verified'
     },
     {
-      body: 'News investigation into conditions at Adelanto ICE Processing Center operated by GEO Group. Reports of inadequate medical staffing and overcrowding beyond rated capacity.',
-      stat: '1,940',
-      statLabel: 'Facility rated capacity',
-      source: 'GEO Group / DHS OIG',
+      body: 'Investigation into GEO Group-operated Adelanto facility. GEO expects $1B+ in ICE contracts for 2025, projects $3B revenue for 2026. CoreCivic doubled ICE revenue to $245M/quarter. 71% of all ICE custody deaths occur in for-profit facilities. Their PACs donated $528K+ to Congress.',
+      stat: '$3B',
+      statLabel: 'GEO Group projected 2026 revenue',
+      source: 'The Appeal / GEO Earnings Call',
       trust: 'contested'
     },
     {
-      body: 'FOIA-released documentation of ICE Air transfer operations through Alexandria staging facility. Detainees are flown across the country, often separated from legal counsel.',
-      stat: '3,200',
-      statLabel: 'Transfers that month',
-      source: 'ICE Air Operations',
+      body: 'FOIA documentation of ICE Air transfer operations. Detainees flown across the country, separated from legal counsel. Victor Manuel Diaz was arrested in Minnesota and transferred to Fort Bliss tent city in Texas, where he died. GEO subsidiary monitors 42,000+ people via GPS ankle bracelets.',
+      stat: '42,000+',
+      statLabel: 'People on GPS ankle monitors',
+      source: 'ICE Air / GEO Group BI Inc.',
       trust: 'govt'
     },
     {
-      body: 'Congressional testimony on the impact of family separation policy. HHS OIG documented that the government had no system to track or reunite separated families.',
+      body: 'Congressional testimony on family separation. 5,500+ children taken. Now, the Dilley family detention center generates $180M annual revenue for CoreCivic. Fort Bliss — built on a base that held 100,000+ Japanese Americans in WWII — has 5,000-bed capacity with an 8,500-bed expansion planned.',
       stat: '5,500+',
-      statLabel: 'Children separated (total)',
-      source: 'HHS OIG / Congressional Record',
+      statLabel: 'Children separated from families',
+      source: 'HHS OIG / The Appeal',
       trust: 'verified'
     }
   ];

@@ -246,6 +246,61 @@ DataAPI.MEMORIAL_DATA = [
     detained_days: 60,
     story: 'Kesley complained of chest pains for days before collapsing. Despite having a known heart condition, he was not given his prescribed medication. His death prompted calls for facility closure.',
     source: 'ACLU New Mexico, NPR'
+  },
+  {
+    name: 'Abelardo Avellaneda-Delgado',
+    age: 68,
+    origin: 'Mexico (lived in Georgia 20+ years)',
+    date: 'May 4, 2025',
+    facility: 'Died in TransCor van en route to Stewart Detention Center, GA',
+    cause: 'Suspected aortic aneurysm',
+    detained_days: 25,
+    story: 'A 68-year-old grandfather arrested on an alleged probation violation. Blood pressure reading of 226/57 — hypertensive crisis level — yet medical staff cleared him for transport. Found cold and stiff when EMS arrived, suggesting he had been dead far longer than the official timeline. TransCor is a CoreCivic subsidiary. His family said: "We want the truth."',
+    source: 'The Appeal, Family Interviews'
+  },
+  {
+    name: 'Francisco Gaspar-Andrés',
+    age: 48,
+    origin: 'Guatemala',
+    date: 'December 3, 2025',
+    facility: 'Camp East Montana, Fort Bliss, TX',
+    cause: 'Liver failure (official: natural causes)',
+    detained_days: 'Unknown',
+    story: 'First person to die at the Fort Bliss tent city detention facility, which opened just months before. Civil rights groups had warned of inedible food, medical neglect, solitary confinement, beatings by masked officers, and abusive sexual contact. The same base held 100,000+ Japanese Americans during WWII.',
+    source: 'The Appeal, Civil Rights Coalition'
+  },
+  {
+    name: 'Geraldo Lunas Campos',
+    age: 55,
+    origin: 'Cuba (longtime U.S. resident, father of two)',
+    date: 'January 3, 2026',
+    facility: 'Camp East Montana, Fort Bliss, TX',
+    cause: 'HOMICIDE — asphyxia from neck and torso compression',
+    detained_days: 'Unknown',
+    story: 'ICE claimed attempted suicide. The county medical examiner ruled it HOMICIDE — death by asphyxia from neck and torso compression by guards. A fellow detainee reported seeing guards choking Campos, who repeatedly said "I can\'t breathe" in Spanish. Civil rights groups had warned 26 days earlier that additional deaths were imminent if the camp continued to operate.',
+    source: 'The Appeal, El Paso County Medical Examiner'
+  },
+  {
+    name: 'Parady La',
+    age: 46,
+    origin: 'Cambodia',
+    date: 'January 9, 2026',
+    facility: 'Federal Detention Center, Philadelphia, PA',
+    cause: 'Brain and organ failure from drug withdrawal',
+    detained_days: 3,
+    story: 'Arrested January 6 and dead three days later. Parady died of brain and organ failure following drug withdrawal — a preventable death with basic medical screening and treatment. Physicians for Human Rights found 95% of ICE custody deaths were preventable with appropriate care.',
+    source: 'Al Jazeera, The Appeal'
+  },
+  {
+    name: 'Victor Manuel Diaz',
+    age: 36,
+    origin: 'Nicaragua',
+    date: 'January 18, 2026',
+    facility: 'Camp East Montana, Fort Bliss, TX',
+    cause: 'Presumed suicide (disputed by family)',
+    detained_days: 'Unknown',
+    story: 'Third death at the Fort Bliss facility in under two months. Arrested in Minnesota and transferred to the Texas tent city. ICE claimed he was found unconscious — his brother expressed disbelief. He is the second person to die at Fort Bliss where ICE claimed suicide, after the medical examiner ruled the first such claim a homicide.',
+    source: 'The Appeal, Family Statement'
   }
 ];
 

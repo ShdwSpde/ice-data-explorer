@@ -62,10 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
       source: 'ICE Detention Management', trust: 'govt'
     },
     {
-      year: '2025', label: 'Current Era',
-      desc: 'Mass deportation operations expand dramatically. ICE budget reaches historic high. Military bases converted to detention.',
-      stat: '$170B', statLabel: 'Proposed enforcement spending',
-      source: 'CBO Analysis, News Reports', trust: 'contested'
+      year: '2025', label: 'Mass Deportation',
+      desc: '540,000 deportation target. 12,000 new agents hired with training cut from 22 to 8 weeks. 130+ facilities opened. Fort Bliss tent city. 38+ dead in custody. 4 civilians shot by agents. $170B allocated.',
+      stat: '38+', statLabel: 'Dead in custody (2025-26)',
+      source: 'Brookings / The Appeal / PBS', trust: 'verified'
     }
   ];
 
@@ -300,13 +300,13 @@ document.addEventListener('DOMContentLoaded', () => {
     entrancePlacard.setAttribute('position', `0 2 ${memorialStartZ}`);
     entrancePlacard.setAttribute('museum-placard',
       'heading: IN MEMORIAM; ' +
-      'subheading: Lives Lost in U.S. Immigration Detention; ' +
-      'stat: 14+; ' +
-      'statLabel: Documented deaths (partial count); ' +
-      'body: Average age 44. Average detention 80 days. 95% of deaths linked to inadequate medical care or neglect. These are not statistics — they are people.; ' +
-      'source: ACLU / Human Rights Watch / ICE FOIA; ' +
+      'subheading: Lives Lost to U.S. Immigration Enforcement; ' +
+      'stat: 38+; ' +
+      'statLabel: Deaths in ICE custody, 2025-2026; ' +
+      'body: 32 died in 2025 — triple the previous year, the highest toll outside COVID. 6 more in the first three weeks of 2026. 71% died in for-profit facilities. 95% were preventable with basic medical care. At Fort Bliss tent city, a medical examiner ruled one death a HOMICIDE by guards. ICE had called it suicide. Plus 4 civilians shot dead by federal agents.; ' +
+      'source: The Appeal / PBS / Physicians for Human Rights / El Paso Medical Examiner; ' +
       'trust: verified; ' +
-      'width: 3.5; height: 2; variant: memorial'
+      'width: 3.5; height: 2.4; variant: memorial'
     );
     container.appendChild(entrancePlacard);
 
@@ -315,9 +315,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const contraEntity = document.createElement('a-entity');
     contraEntity.setAttribute('position', `0 1.8 ${contraZ}`);
     contraEntity.setAttribute('contradiction',
-      'metric: Deaths in ICE Custody (Annual); ' +
-      'govtValue: ~10 per year; govtSource: ICE ERO Statistics; ' +
-      'indepValue: 30-40 per year; indepSource: ACLU / Guardian / HRW; ' +
+      'metric: Deaths in ICE Custody (2025-26); ' +
+      'govtValue: 9 deaths (claimed by ICE); govtSource: Acting Director Todd Lyons; ' +
+      'indepValue: 38+ deaths documented; indepSource: The Appeal / Senate Democrats / PBS; ' +
       'severity: high'
     );
     container.appendChild(contraEntity);
@@ -420,12 +420,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // ══════════════════════════════════════════════════
       const featuredStartZ = memStartZ - (memorial.length * spacing) - 4;
 
-      // ── Operation Metro Surge header ──
+      // ── Featured section floor ──
       const surgeFloor = document.createElement('a-plane');
       surgeFloor.setAttribute('position', `0 0.01 ${featuredStartZ + 1}`);
       surgeFloor.setAttribute('rotation', '-90 0 0');
       surgeFloor.setAttribute('width', corridorWidth.toString());
-      surgeFloor.setAttribute('height', '8');
+      surgeFloor.setAttribute('height', '10');
       surgeFloor.setAttribute('color', '#0a0a0a');
       container.appendChild(surgeFloor);
 
@@ -438,23 +438,48 @@ document.addEventListener('DOMContentLoaded', () => {
       redLine.setAttribute('color', '#B22234');
       container.appendChild(redLine);
 
-      // Surge header placard — center wall
+      // ── ICE EXPANSION placard — accountability gap ──
+      const expansionPlacard = document.createElement('a-entity');
+      expansionPlacard.setAttribute('position', `0 2.2 ${featuredStartZ}`);
+      expansionPlacard.setAttribute('museum-placard',
+        'heading: THE EXPANSION; ' +
+        'subheading: ICE Growth Has Outpaced Accountability; ' +
+        'stat: $170B; ' +
+        'statLabel: Allocated for immigration enforcement; ' +
+        'body: 540,000 deportations targeted. 12,000 new ICE agents hired. Training academy shortened from 22 weeks to 8 — a 64% reduction. 130+ new detention facilities opened in 2025. ICE now operates nearly 200 jails nationwide. 60% of Americans believe ICE uses excessive force. Fort Bliss tent city holds 2,000+ daily with 5,000 capacity, and DHS is building an 8,500-bed mega-facility nearby.; ' +
+        'source: Brookings Institution / The Appeal / CBO; ' +
+        'trust: verified; ' +
+        'width: 4; height: 2.4; variant: cost'
+      );
+      container.appendChild(expansionPlacard);
+
+      // Surge header placard — center wall (offset further)
+      const surgeZ = featuredStartZ - 3;
       const surgeHeader = document.createElement('a-entity');
-      surgeHeader.setAttribute('position', `0 2.2 ${featuredStartZ}`);
+      surgeHeader.setAttribute('position', `0 2.2 ${surgeZ}`);
       surgeHeader.setAttribute('museum-placard',
         'heading: OPERATION METRO SURGE; ' +
         'subheading: Minneapolis-St. Paul / January 2026; ' +
         'stat: 4,000+; ' +
         'statLabel: Arrests in 7 weeks; ' +
-        'body: The largest DHS enforcement operation in U.S. history. 3,000 federal agents deployed to Minnesota. 2 civilians killed by federal officers. 19 firing incidents nationwide during immigration operations. Cost to Minneapolis: $200M+.; ' +
-        'source: DHS / Minnesota Reformer / Marshall Project; ' +
+        'body: The largest DHS enforcement operation in U.S. history. 3,000 federal agents deployed — many with only 8 weeks training. 2 civilians killed by federal officers. 19 firing incidents nationwide. Cost to Minneapolis: $200M+. Agents drawn from new hires with 64% less training than prior classes.; ' +
+        'source: DHS / Minnesota Reformer / Marshall Project / Brookings; ' +
         'trust: contested; ' +
         'width: 4; height: 2.2; variant: memorial'
       );
       container.appendChild(surgeHeader);
 
+      // Extra floor for expansion + surge
+      const surgeExtraFloor = document.createElement('a-plane');
+      surgeExtraFloor.setAttribute('position', `0 0.01 ${surgeZ + 1.5}`);
+      surgeExtraFloor.setAttribute('rotation', '-90 0 0');
+      surgeExtraFloor.setAttribute('width', corridorWidth.toString());
+      surgeExtraFloor.setAttribute('height', '4');
+      surgeExtraFloor.setAttribute('color', '#0a0a0a');
+      container.appendChild(surgeExtraFloor);
+
       // ── RENEE NICOLE GOOD — Left wall, large featured ──
-      const reneeZ = featuredStartZ - 4;
+      const reneeZ = surgeZ - 4;
 
       // Dark alcove for Renee
       const reneeFloor = document.createElement('a-plane');
@@ -567,17 +592,142 @@ document.addEventListener('DOMContentLoaded', () => {
       alexData.setAttribute('museum-placard',
         'heading: FEDERAL AGENTS FIRING ON CIVILIANS; ' +
         'subheading: Nationwide Pattern — 2025-2026; ' +
-        'stat: 19; ' +
+        'stat: 19+; ' +
         'statLabel: Shooting incidents during immigration ops; ' +
-        'body: 8 non-fatal shootings. 9 vehicle-related shootings in 4 months where agents claimed drivers tried to strike them. Multiple cases where body camera footage contradicted official accounts. Victims include: Silverio Villegas Gonzalez (Chicago, Sep 2025), Isaias Sanchez Barboza (TX, Dec 2025), Keith Porter (LA, Dec 2025), Renee Good and Alex Pretti (Minneapolis, Jan 2026).; ' +
-        'source: Marshall Project / ProPublica / CBS News; ' +
+        'body: Fatal: Keith Porter (LA, Dec 2025), Renee Good (Minneapolis, Jan 7), Alex Pretti (Minneapolis, Jan 24). Non-fatal: Marimar Martinez (Newark, Jan 29), Julio Cesar Sosa-Celis (TX), Patrick Gary Schlegel (Portland). 9 vehicle-related shootings in 4 months — agents claimed self-defense, video contradicted. ICE has no use-of-force database. New agents have 8 weeks training vs 22 previously.; ' +
+        'source: PBS NewsHour / Marshall Project / ProPublica / Brookings; ' +
         'trust: verified; ' +
-        'width: 2.8; height: 2.2; variant: cost'
+        'width: 2.8; height: 2.4; variant: cost'
       );
       container.appendChild(alexData);
 
+      // ══════════════════════════════════════════════
+      //  FORT BLISS — The Tent City
+      // ══════════════════════════════════════════════
+      const blissZ = alexZ - 6;
+
+      // Dark alcove for Fort Bliss
+      const blissFloor = document.createElement('a-plane');
+      blissFloor.setAttribute('position', `0 0.01 ${blissZ}`);
+      blissFloor.setAttribute('rotation', '-90 0 0');
+      blissFloor.setAttribute('width', corridorWidth.toString());
+      blissFloor.setAttribute('height', '5');
+      blissFloor.setAttribute('color', '#0a0a0a');
+      container.appendChild(blissFloor);
+
+      const blissLW = document.createElement('a-plane');
+      blissLW.setAttribute('position', `${-corridorWidth / 2} 1.5 ${blissZ}`);
+      blissLW.setAttribute('rotation', '0 90 0');
+      blissLW.setAttribute('width', '5');
+      blissLW.setAttribute('height', '3');
+      blissLW.setAttribute('color', '#0a0a0a');
+      container.appendChild(blissLW);
+
+      const blissRW = document.createElement('a-plane');
+      blissRW.setAttribute('position', `${corridorWidth / 2} 1.5 ${blissZ}`);
+      blissRW.setAttribute('rotation', '0 -90 0');
+      blissRW.setAttribute('width', '5');
+      blissRW.setAttribute('height', '3');
+      blissRW.setAttribute('color', '#0a0a0a');
+      container.appendChild(blissRW);
+
+      // Main placard — left wall: Geraldo Lunas Campos
+      const camposPlacard = document.createElement('a-entity');
+      camposPlacard.setAttribute('position', `${-(corridorWidth / 2 - 0.06)} 1.8 ${blissZ}`);
+      camposPlacard.setAttribute('rotation', '0 90 0');
+      camposPlacard.setAttribute('museum-placard',
+        'heading: GERALDO LUNAS CAMPOS; ' +
+        'subheading: Age 55 | Cuba | January 3, 2026; ' +
+        'stat: HOMICIDE; ' +
+        'statLabel: Ruled by El Paso County Medical Examiner; ' +
+        'body: ICE claimed attempted suicide. The county medical examiner ruled it HOMICIDE — asphyxia from neck and torso compression by guards. A fellow detainee saw guards choking Campos, who repeatedly said "I can\'t breathe" in Spanish. He was a father of two who had lived in the U.S. for years. Civil rights groups had warned 26 days earlier that deaths were imminent at Fort Bliss.; ' +
+        'source: The Appeal / El Paso County Medical Examiner; ' +
+        'trust: verified; ' +
+        'width: 2.8; height: 2.4; variant: memorial'
+      );
+      container.appendChild(camposPlacard);
+
+      // Fort Bliss data — right wall
+      const blissData = document.createElement('a-entity');
+      blissData.setAttribute('position', `${corridorWidth / 2 - 0.06} 1.8 ${blissZ}`);
+      blissData.setAttribute('rotation', '0 -90 0');
+      blissData.setAttribute('museum-placard',
+        'heading: CAMP EAST MONTANA — FORT BLISS; ' +
+        'subheading: The Tent City; ' +
+        'stat: 3 DEAD; ' +
+        'statLabel: In under 2 months of operation; ' +
+        'body: Sprawling tent city on Fort Bliss Army base outside El Paso. Capacity: 5,000. Holds 2,000+ daily. Opened less than 4 months before first death. Conditions: inedible food, medical neglect, solitary confinement, beatings by masked officers, abusive sexual contact by contractors. DHS is building an 8,500-bed mega-facility nearby. The same base held 100,000+ Japanese Americans during WWII.; ' +
+        'source: The Appeal / Civil Rights Coalition Letter; ' +
+        'trust: verified; ' +
+        'width: 2.8; height: 2.4; variant: cost'
+      );
+      container.appendChild(blissData);
+
+      // Fort Bliss contradiction — center
+      const blissContra = document.createElement('a-entity');
+      blissContra.setAttribute('position', `0 1.6 ${blissZ - 2}`);
+      blissContra.setAttribute('contradiction',
+        'metric: Campos Death at Fort Bliss; ' +
+        'govtValue: Attempted suicide; govtSource: ICE Statement; ' +
+        'indepValue: HOMICIDE by guards; indepSource: El Paso County Medical Examiner; ' +
+        'severity: high'
+      );
+      container.appendChild(blissContra);
+
+      // ══════════════════════════════════════════════
+      //  WHO PROFITS FROM DETENTION
+      // ══════════════════════════════════════════════
+      const profitZ = blissZ - 6;
+
+      const profitFloor = document.createElement('a-plane');
+      profitFloor.setAttribute('position', `0 0.01 ${profitZ}`);
+      profitFloor.setAttribute('rotation', '-90 0 0');
+      profitFloor.setAttribute('width', corridorWidth.toString());
+      profitFloor.setAttribute('height', '5');
+      profitFloor.setAttribute('color', '#0a0a0a');
+      container.appendChild(profitFloor);
+
+      // Gold accent line (money)
+      const goldLine = document.createElement('a-plane');
+      goldLine.setAttribute('position', `0 0.02 ${profitZ + 2}`);
+      goldLine.setAttribute('rotation', '-90 0 0');
+      goldLine.setAttribute('width', corridorWidth.toString());
+      goldLine.setAttribute('height', '0.08');
+      goldLine.setAttribute('color', '#D4AC0D');
+      container.appendChild(goldLine);
+
+      const profitPlacard = document.createElement('a-entity');
+      profitPlacard.setAttribute('position', `${-(corridorWidth / 2 - 0.06)} 1.8 ${profitZ}`);
+      profitPlacard.setAttribute('rotation', '0 90 0');
+      profitPlacard.setAttribute('museum-placard',
+        'heading: WHO PROFITS FROM DETENTION; ' +
+        'subheading: Private Prison Industry — By the Numbers; ' +
+        'stat: $3B; ' +
+        'statLabel: GEO Group projected 2026 revenue; ' +
+        'body: GEO Group Q4 2025: net income doubled to $31.8M. Total 2025 revenue: $2.63B. CoreCivic ICE revenue: $245M/quarter (doubled from $120M). CoreCivic 2025 profits: $116.5M (up 70%). GEO holds 24,000 ICE detainees — their highest ever. They told investors they are ready to scale to 100,000+ monitored. 71% of all custody deaths in for-profit facilities.; ' +
+        'source: The Appeal / GEO + CoreCivic Earnings Calls; ' +
+        'trust: verified; ' +
+        'width: 2.8; height: 2.6; variant: cost'
+      );
+      container.appendChild(profitPlacard);
+
+      const profitData = document.createElement('a-entity');
+      profitData.setAttribute('position', `${corridorWidth / 2 - 0.06} 1.8 ${profitZ}`);
+      profitData.setAttribute('rotation', '0 -90 0');
+      profitData.setAttribute('museum-placard',
+        'heading: THE DETENTION-TO-DONATION PIPELINE; ' +
+        'subheading: Money In, Bodies Out; ' +
+        'stat: $528K+; ' +
+        'statLabel: Private prison PAC donations to Congress; ' +
+        'body: GEO PAC: $280K. CoreCivic PAC: $248K. MTC PAC: $147K. Executives Zoley and Hininger: $1M+ each personally. Republicans: ~$500K, Democrats: $57K. Bipartisan complicity. Dilley family center: $180M/year. GEO has 6,000 beds ready at former federal prisons, potential $300M+ annual revenue. CoreCivic has 13,000 empty beds ready to fill.; ' +
+        'source: The Appeal / OpenSecrets / FEC / Earnings Calls; ' +
+        'trust: verified; ' +
+        'width: 2.8; height: 2.6; variant: cost'
+      );
+      container.appendChild(profitData);
+
       // ── Final closing placard ──
-      const closingZ = alexZ - 4;
+      const closingZ = profitZ - 4;
       const closingFloor = document.createElement('a-plane');
       closingFloor.setAttribute('position', `0 0.01 ${closingZ}`);
       closingFloor.setAttribute('rotation', '-90 0 0');
@@ -591,27 +741,43 @@ document.addEventListener('DOMContentLoaded', () => {
       closingPlacard.setAttribute('museum-placard',
         'heading: THE COST OF ENFORCEMENT; ' +
         'subheading: What these numbers represent; ' +
-        'body: Every statistic in this corridor represents a human life, a family torn apart, a community terrorized. The data is not neutral. The enforcement is not abstract. These are the consequences of policy choices made in your name.; ' +
-        'source: ICE Data Explorer; ' +
+        'body: 38+ dead in custody. 4 civilians shot. $170 billion allocated. 71% of deaths in for-profit facilities. 95% preventable. Training cut by 64%. A medical examiner ruled one death a homicide — ICE called it suicide. Every statistic is a person. Every dollar is a choice. These are the consequences of policy decisions made in your name.; ' +
+        'source: ICE Data Explorer — All sources cited above; ' +
         'trust: verified; ' +
-        'width: 3.5; height: 1.6; variant: memorial'
+        'width: 3.5; height: 1.8; variant: memorial'
       );
       container.appendChild(closingPlacard);
 
       // ── Red particles for featured section ──
+      const featuredMid = (featuredStartZ + closingZ) / 2;
       const featuredParticles = document.createElement('a-entity');
-      featuredParticles.setAttribute('position', `0 3 ${(featuredStartZ + closingZ) / 2}`);
+      featuredParticles.setAttribute('position', `0 3 ${featuredMid}`);
       featuredParticles.setAttribute('particle-system',
         'preset: dust; ' +
         'color: #C0392B,#1a1a1a; ' +
-        'particleCount: 150; ' +
+        'particleCount: 250; ' +
         'size: 0.04; ' +
-        'maxAge: 10; ' +
+        'maxAge: 12; ' +
         'velocityValue: 0 -0.08 0; ' +
-        'accelerationSpread: 0.3 0.05 0.3; ' +
+        'accelerationSpread: 0.5 0.05 0.5; ' +
         'opacity: 0.25'
       );
       container.appendChild(featuredParticles);
+
+      // Second particle emitter for the extended corridor
+      const featuredParticles2 = document.createElement('a-entity');
+      featuredParticles2.setAttribute('position', `0 3 ${featuredMid - 15}`);
+      featuredParticles2.setAttribute('particle-system',
+        'preset: dust; ' +
+        'color: #D4AC0D,#1a1a1a; ' +
+        'particleCount: 150; ' +
+        'size: 0.03; ' +
+        'maxAge: 10; ' +
+        'velocityValue: 0 -0.06 0; ' +
+        'accelerationSpread: 0.4 0.05 0.4; ' +
+        'opacity: 0.2'
+      );
+      container.appendChild(featuredParticles2);
     }
 
     console.log('[timeline] Brutalist corridor + memorial + featured cases generated');
