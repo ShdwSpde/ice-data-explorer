@@ -50,6 +50,13 @@ app = dash.Dash(
 
 server = app.server
 
+@server.after_request
+def add_cors_headers(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Content-Type'
+    return response
+
 # ============================================
 # REST API ENDPOINTS
 # ============================================
@@ -59,9 +66,12 @@ from flask import jsonify, request
 # List of tables available via API
 API_TABLES = [
     'agency_budgets', 'arrests', 'deaths_in_custody', 'deportations',
-    'detention_facilities', 'detention_population', 'key_statistics',
-    'source_registry', 'data_provenance', 'source_contradictions',
-    'data_changelog', 'foia_requests', 'news_articles'
+    'deportations_by_nationality', 'detention_facilities',
+    'detention_population', 'key_statistics', 'source_registry',
+    'data_provenance', 'source_contradictions', 'data_changelog',
+    'foia_requests', 'news_articles', 'policy_events',
+    'corporate_contractors', 'federal_contracts',
+    'private_prison_contracts', 'lobbying_records', 'stock_prices'
 ]
 
 @server.route('/api/')
