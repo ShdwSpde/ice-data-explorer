@@ -2288,6 +2288,17 @@ app.layout = html.Div([
                 in_navbar=True,
                 className="nav-dropdown",
             ),
+
+            # External: VR Experience
+            dbc.NavItem(
+                dbc.NavLink(
+                    "VR Experience",
+                    href="/vr/",
+                    target="_blank",
+                    className="nav-link",
+                    external_link=True
+                )
+            ),
         ], className='nav-tabs-custom', id='main-nav'),
     ], className='nav-container'),
 
