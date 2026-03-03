@@ -487,3 +487,40 @@ Format: MP3/OGG, mono for spatial sources, stereo for ambient.
 | Video panel frame | Footage | 800 | Thin-bordered screen with attachment points |
 | Content warning gate | Footage | 400 | Semi-transparent barrier |
 | **Total** | | **~6600** | Well within Quest budget |
+
+---
+
+## 12. Footage Sourcing Guide
+
+### Public Domain / No Licensing Required
+
+| Source | Type | Notes |
+|--------|------|-------|
+| **DVIDS** (Defense Visual Information Distribution Service) | ICE/DHS-produced raid footage | Public domain, downloadable. Stanford Law documented ICE films operations and posts them here. |
+| **C-SPAN** | Congressional hearings, oversight testimony | Public domain. Detention conditions hearings, family separation testimony. |
+| **FOIA Releases** | Government-produced enforcement footage | Requestable via FOIA. Stanford Immigrants' Rights Clinic successfully sued for California 2020 raid footage. |
+
+### Investigative Journalism (Attribution Required)
+
+| Source | Type | Notes |
+|--------|------|-------|
+| **Bellingcat** | OSINT forensic analysis of enforcement footage | Frame-by-frame analysis of Minneapolis CBP/ICE operations (Jan 2026). Public methodology. |
+| **WITNESS Library** (library.witness.org) | Human rights video documentation frameworks | Free guides on ethical filming, consent, privacy, chain of custody. Informs our trauma-informed design. |
+| **Wired** — "How to Film ICE" | Legal framework for documenting ICE operations | Rights of bystanders to film, legal protections. |
+
+### Licensed (Budget Required)
+
+| Source | Type | Notes |
+|--------|------|-------|
+| **Shutterstock** | Professional stock footage of ICE operations | Commercial license required. High quality. |
+| **BBC News** | Broadcast journalism, field reporting | Licensing needed. Minneapolis deployment coverage. |
+| **AP / Reuters** | Wire service footage | Standard news licensing. |
+
+### Ethical Framework (from WITNESS.org)
+
+All footage in the VR experience must follow WITNESS principles:
+- **Informed consent** where possible; blur faces when consent not obtained
+- **Do no harm** — footage must not endanger subjects or their families
+- **Chain of custody** — metadata preserved from source to presentation
+- **Contextualization** — never present footage without data context (dates, stats, source attribution)
+- **Right to refuse** — content gate ensures users choose to view; exit always available
