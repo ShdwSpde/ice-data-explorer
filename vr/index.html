@@ -13,6 +13,7 @@
 </head>
 <body>
   <a-scene
+    room-manager="active: hub"
     fog="type: exponential; color: #FFFFFF; density: 0.015"
     vr-mode-ui="enabled: true"
     renderer="antialias: true; colorManagement: true"
@@ -76,6 +77,7 @@
     </a-entity>
   </a-scene>
 
+  <script src="js/components/room-manager.js"></script>
   <script src="js/data-api.js"></script>
   <script src="js/app.js"></script>
 </body>
