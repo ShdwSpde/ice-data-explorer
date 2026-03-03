@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hub: 'HUB',
     landscape: 'DATA LANDSCAPE',
     timeline: 'TIMELINE WALK',
-    globe: 'FACILITY GLOBE',
+    globe: 'SECURITY FEED',
     footage: 'RAID FOOTAGE'
   };
 
