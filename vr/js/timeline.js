@@ -147,11 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
 
     const segmentLength = 5;
+    const corridorWidth = 6;
 
     ERAS.forEach((era, i) => {
       const z = -(i * segmentLength);
-
-      const corridorWidth = 6;
 
       // ── Floor segment — brutalist concrete ──
       const floor = document.createElement('a-plane');
@@ -253,7 +252,6 @@ document.addEventListener('DOMContentLoaded', () => {
     //  MEMORIAL SECTION — after last era
     // ══════════════════════════════════════════
     const memorialStartZ = -(ERAS.length * segmentLength) - 3;
-    const corridorWidth = 6;
     const memorial = DataAPI.MEMORIAL_DATA;
     if (!memorial || memorial.length === 0) {
       console.warn('[timeline] No memorial data available');
