@@ -139,24 +139,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
 
-  scene.addEventListener('room-changed', async (evt) => {
-    if (evt.detail.room !== 'timeline' || timelineLoaded) return;
+  function renderTimeline() {
+    if (timelineLoaded) return;
     timelineLoaded = true;
 
     const container = document.querySelector('#timeline-segments');
     if (!container) return;
 
-    const api = window.dataAPI;
     const segmentLength = 5;
-
-    let detentionData = [];
-    let deportationData = [];
-    if (api) {
-      const det = await api.getTimeSeries('detention_population', 'population');
-      const dep = await api.getTimeSeries('deportations', 'removals');
-      detentionData = det || [];
-      deportationData = dep || [];
-    }
 
     ERAS.forEach((era, i) => {
       const z = -(i * segmentLength);
@@ -234,111 +224,28 @@ document.addEventListener('DOMContentLoaded', () => {
       );
       container.appendChild(placard);
 
-      // ── Data bars on left wall with labels ──
-      const leftBarX = -(corridorWidth / 2 - 0.2);
-      const eraYear = parseInt(era.year);
-      const detPoint = detentionData.find(d => d.year === eraYear);
-      const depPoint = deportationData.find(d => d.year === eraYear);
+      // ── Narrative placard on left wall — counter-narrative mirror ──
+      if (era.counter) {
+        const leftX = -(corridorWidth / 2 - 0.06);
+        const c = era.counter;
 
-      if (detPoint) {
-        const bar = document.createElement('a-entity');
-        bar.setAttribute('position', `${leftBarX} 0 ${z - 0.5}`);
-        bar.setAttribute('rotation', '0 90 0');
-        const h = Math.max(0.1, (detPoint.value / 80000) * 2);
-        bar.setAttribute('data-bar',
-          `height: ${h}; color: #2C3E50; width: 0.3; depth: 0.3; ` +
-          `label: Detained ${eraYear}; value: ${detPoint.value.toLocaleString()}; ` +
-          `source: ICE; trust: govt`
+        const safeBody    = c.body.replace(/;/g, ',');
+        const safeSpeaker = c.speaker.replace(/;/g, ',');
+        const safeSource  = c.source.replace(/;/g, ',');
+        const safeDate    = c.date.replace(/;/g, ',');
+
+        const narrativePlacard = document.createElement('a-entity');
+        narrativePlacard.setAttribute('position', `${leftX} 1.8 ${z}`);
+        narrativePlacard.setAttribute('rotation', '0 90 0');
+        narrativePlacard.setAttribute('narrative-placard',
+          `type: ${c.type}; ` +
+          `speaker: ${safeSpeaker}; ` +
+          `date: ${safeDate}; ` +
+          `body: ${safeBody}; ` +
+          `source: ${safeSource}; ` +
+          `width: 2.2; height: 1.5`
         );
-        container.appendChild(bar);
-
-        // Value label on bar
-        const detLabel = document.createElement('a-text');
-        detLabel.setAttribute('value', (detPoint.value / 1000).toFixed(0) + 'K');
-        detLabel.setAttribute('position', `${leftBarX} ${h + 0.15} ${z - 0.5}`);
-        detLabel.setAttribute('rotation', '0 90 0');
-        detLabel.setAttribute('color', '#2C3E50');
-        detLabel.setAttribute('width', '1.8');
-        detLabel.setAttribute('font', 'monoid');
-        detLabel.setAttribute('align', 'center');
-        container.appendChild(detLabel);
-      }
-
-      if (depPoint) {
-        const bar = document.createElement('a-entity');
-        bar.setAttribute('position', `${leftBarX} 0 ${z + 0.5}`);
-        bar.setAttribute('rotation', '0 90 0');
-        const h = Math.max(0.1, (depPoint.value / 500000) * 2);
-        bar.setAttribute('data-bar',
-          `height: ${h}; color: #E74C3C; width: 0.3; depth: 0.3; ` +
-          `label: Deported ${eraYear}; value: ${depPoint.value.toLocaleString()}; ` +
-          `source: ICE; trust: govt`
-        );
-        container.appendChild(bar);
-
-        // Value label on bar
-        const depLabel = document.createElement('a-text');
-        depLabel.setAttribute('value', (depPoint.value / 1000).toFixed(0) + 'K');
-        depLabel.setAttribute('position', `${leftBarX} ${h + 0.15} ${z + 0.5}`);
-        depLabel.setAttribute('rotation', '0 90 0');
-        depLabel.setAttribute('color', '#E74C3C');
-        depLabel.setAttribute('width', '1.8');
-        depLabel.setAttribute('font', 'monoid');
-        depLabel.setAttribute('align', 'center');
-        container.appendChild(depLabel);
-      }
-
-      // ── Legend on left wall (first era only) ──
-      if (i === 0) {
-        const legendX = leftBarX;
-        const legendZ = z + segmentLength / 2 - 0.5;
-
-        // Legend background
-        const legendBg = document.createElement('a-plane');
-        legendBg.setAttribute('position', `${legendX} 2.4 ${legendZ}`);
-        legendBg.setAttribute('rotation', '0 90 0');
-        legendBg.setAttribute('width', '2.2');
-        legendBg.setAttribute('height', '0.6');
-        legendBg.setAttribute('color', '#1a1a1a');
-        container.appendChild(legendBg);
-
-        // Detention legend swatch
-        const detSwatch = document.createElement('a-plane');
-        detSwatch.setAttribute('position', `${legendX} 2.5 ${legendZ + 0.2}`);
-        detSwatch.setAttribute('rotation', '0 90 0');
-        detSwatch.setAttribute('width', '0.15');
-        detSwatch.setAttribute('height', '0.15');
-        detSwatch.setAttribute('color', '#2C3E50');
-        container.appendChild(detSwatch);
-
-        const detLegendText = document.createElement('a-text');
-        detLegendText.setAttribute('value', 'DETAINED');
-        detLegendText.setAttribute('position', `${legendX} 2.5 ${legendZ - 0.05}`);
-        detLegendText.setAttribute('rotation', '0 90 0');
-        detLegendText.setAttribute('color', '#ECF0F1');
-        detLegendText.setAttribute('width', '1.5');
-        detLegendText.setAttribute('font', 'monoid');
-        detLegendText.setAttribute('align', 'left');
-        container.appendChild(detLegendText);
-
-        // Deportation legend swatch
-        const depSwatch = document.createElement('a-plane');
-        depSwatch.setAttribute('position', `${legendX} 2.25 ${legendZ + 0.2}`);
-        depSwatch.setAttribute('rotation', '0 90 0');
-        depSwatch.setAttribute('width', '0.15');
-        depSwatch.setAttribute('height', '0.15');
-        depSwatch.setAttribute('color', '#E74C3C');
-        container.appendChild(depSwatch);
-
-        const depLegendText = document.createElement('a-text');
-        depLegendText.setAttribute('value', 'DEPORTED');
-        depLegendText.setAttribute('position', `${legendX} 2.25 ${legendZ - 0.05}`);
-        depLegendText.setAttribute('rotation', '0 90 0');
-        depLegendText.setAttribute('color', '#ECF0F1');
-        depLegendText.setAttribute('width', '1.5');
-        depLegendText.setAttribute('font', 'monoid');
-        depLegendText.setAttribute('align', 'left');
-        container.appendChild(depLegendText);
+        container.appendChild(narrativePlacard);
       }
     });
 
@@ -847,5 +754,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     console.log('[timeline] Brutalist corridor + memorial + featured cases generated');
-  });
+  }
+
+  if (scene.hasLoaded) {
+    renderTimeline();
+  } else {
+    scene.addEventListener('loaded', renderTimeline, { once: true });
+  }
 });
