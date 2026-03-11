@@ -4,7 +4,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  const scene = document.querySelector('a-scene');
+  const sceneEl = document.querySelector('a-scene');
 
   // --- Letterbox bars (desktop only) ---
   const letterboxTop = document.createElement('div');
@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3000);
   }
 
-  const sceneEl = document.querySelector('a-scene');
   if (sceneEl.hasLoaded) {
     runWatchtowerSequence();
   } else {
@@ -45,12 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Hide overlay elements when entering VR
-  scene.addEventListener('enter-vr', () => {
+  sceneEl.addEventListener('enter-vr', () => {
     letterboxTop.style.display = 'none';
     letterboxBottom.style.display = 'none';
   });
 
-  scene.addEventListener('exit-vr', () => {
+  sceneEl.addEventListener('exit-vr', () => {
     letterboxTop.style.display = '';
     letterboxBottom.style.display = '';
   });
