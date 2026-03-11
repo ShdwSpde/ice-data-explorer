@@ -6,65 +6,53 @@
 document.addEventListener('DOMContentLoaded', () => {
   const scene = document.querySelector('a-scene');
 
-  // --- Create HTML overlay elements ---
+  // --- Letterbox bars (desktop only) ---
+  const letterboxTop = document.createElement('div');
+  letterboxTop.className = 'letterbox-top';
+  document.body.appendChild(letterboxTop);
 
-  // Back button
-  const backBtn = document.createElement('button');
-  backBtn.id = 'back-to-hub';
-  backBtn.textContent = '\u2190 Back to Hub';
-  document.body.appendChild(backBtn);
+  const letterboxBottom = document.createElement('div');
+  letterboxBottom.className = 'letterbox-bottom';
+  document.body.appendChild(letterboxBottom);
 
-  backBtn.addEventListener('click', () => {
-    scene.emit('room-change', { room: 'hub' });
-  });
+  // --- Watchtower loading sequence ---
+  const loadingScreen = document.getElementById('loading-screen');
+  const hudHint = document.getElementById('hud-hint');
 
-  // Room label
-  const roomLabel = document.createElement('div');
-  roomLabel.id = 'room-label';
-  document.body.appendChild(roomLabel);
+  function runWatchtowerSequence() {
+    // Hold Watchtower card for 2.5s, fade out over 0.5s
+    setTimeout(() => {
+      loadingScreen.classList.add('fade-out');
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+      }, 500);
+    }, 2500);
 
-  // Navigation hint
-  const navHint = document.createElement('div');
-  navHint.id = 'nav-hint';
-  navHint.textContent = 'WASD to move \u2022 Mouse to look \u2022 Click portals to navigate';
-  document.body.appendChild(navHint);
+    // Show walk-forward hint after flash clears (3s), fade it after 4s
+    setTimeout(() => {
+      if (hudHint) hudHint.style.opacity = '1';
+      setTimeout(() => {
+        if (hudHint) hudHint.style.opacity = '0';
+      }, 4000);
+    }, 3000);
+  }
 
-  const ROOM_NAMES = {
-    hub: 'HUB',
-    landscape: 'DATA LANDSCAPE',
-    timeline: 'TIMELINE WALK',
-    globe: 'SECURITY FEED',
-    footage: 'RAID FOOTAGE'
-  };
-
-  // Update overlay on room change
-  scene.addEventListener('room-changed', (evt) => {
-    const room = evt.detail.room;
-    const isHub = room === 'hub';
-
-    // Show/hide back button
-    backBtn.classList.toggle('visible', !isHub);
-
-    // Show/hide room label
-    if (!isHub) {
-      roomLabel.textContent = ROOM_NAMES[room] || room.toUpperCase();
-      roomLabel.classList.add('visible');
-    } else {
-      roomLabel.classList.remove('visible');
-    }
-  });
+  const sceneEl = document.querySelector('a-scene');
+  if (sceneEl.hasLoaded) {
+    runWatchtowerSequence();
+  } else {
+    sceneEl.addEventListener('loaded', runWatchtowerSequence, { once: true });
+  }
 
   // Hide overlay elements when entering VR
   scene.addEventListener('enter-vr', () => {
-    backBtn.style.display = 'none';
-    roomLabel.style.display = 'none';
-    navHint.style.display = 'none';
+    letterboxTop.style.display = 'none';
+    letterboxBottom.style.display = 'none';
   });
 
   scene.addEventListener('exit-vr', () => {
-    backBtn.style.display = '';
-    roomLabel.style.display = '';
-    navHint.style.display = '';
+    letterboxTop.style.display = '';
+    letterboxBottom.style.display = '';
   });
 
   console.log('[VR] ICE Data Explorer VR Experience initialized');
