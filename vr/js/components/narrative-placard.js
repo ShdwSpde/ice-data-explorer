@@ -54,9 +54,10 @@ AFRAME.registerComponent('narrative-placard', {
     accentLine.setAttribute('position', `0 ${h / 2 - 0.012} 0.002`);
     el.appendChild(accentLine);
 
-    // Speaker / source name
+    // Speaker / source name — strip semicolons (A-Frame attribute parsing)
+    const safeSpeaker = d.speaker.replace(/;/g, ',');
     const speakerText = document.createElement('a-text');
-    speakerText.setAttribute('value', d.speaker);
+    speakerText.setAttribute('value', safeSpeaker);
     speakerText.setAttribute('color', speakerClr);
     speakerText.setAttribute('width', w * 1.8);
     speakerText.setAttribute('wrap-count', 32);
@@ -65,9 +66,10 @@ AFRAME.registerComponent('narrative-placard', {
     speakerText.setAttribute('position', `${-(w / 2) + 0.1} ${h / 2 - 0.15} 0.003`);
     el.appendChild(speakerText);
 
-    // Date
+    // Date — strip semicolons
+    const safeDate = d.date.replace(/;/g, ',');
     const dateText = document.createElement('a-text');
-    dateText.setAttribute('value', d.date);
+    dateText.setAttribute('value', safeDate);
     dateText.setAttribute('color', bodyClr);
     dateText.setAttribute('width', w * 1.4);
     dateText.setAttribute('font', 'monoid');
