@@ -16,7 +16,10 @@
     room-manager="active: hub"
     fog="type: exponential; color: #E8E8E8; density: 0.012"
     vr-mode-ui="enabled: true"
+    light="defaultLightsEnabled: false"
     renderer="antialias: true; colorManagement: true"
+    room-lighting
+    room-atmosphere
   >
     <!-- Assets preloader -->
     <a-assets>
@@ -31,7 +34,7 @@
       rotation="-90 0 0"
       width="100"
       height="100"
-      material="color: #95A5A6; opacity: 0.15; transparent: true; wireframe: true"
+      material="color: #95A5A6; opacity: 0.15; transparent: true; wireframe: true; roughness: 0.15; metalness: 0.8"
     ></a-plane>
 
     <!-- Camera rig -->
@@ -51,6 +54,15 @@
           material="color: #ECF0F1; shader: flat"
           raycaster="objects: .clickable"
         ></a-entity>
+        <!-- Fade-to-black plane for room transitions -->
+        <a-plane
+          id="fade-plane"
+          position="0 0 -0.5"
+          width="4"
+          height="4"
+          material="color: #000000; shader: flat; transparent: true; opacity: 0"
+          visible="false"
+        ></a-plane>
       </a-entity>
       <a-entity id="left-hand" laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
       <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
@@ -170,11 +182,14 @@
   </a-scene>
 
   <script src="js/components/room-manager.js"></script>
+  <script src="js/components/room-lighting.js"></script>
+  <script src="js/components/room-atmosphere.js"></script>
   <script src="js/components/portal.js"></script>
   <script src="js/components/tooltip-3d.js"></script>
   <script src="js/components/data-bar.js"></script>
   <script src="js/components/data-terrain.js"></script>
   <script src="js/components/museum-placard.js"></script>
+  <script src="js/components/narrative-placard.js"></script>
   <script src="js/components/security-feed.js"></script>
   <script src="js/components/content-gate.js"></script>
   <script src="js/components/video-panel.js"></script>
