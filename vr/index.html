@@ -29,7 +29,7 @@
   </div>
   <div id="hud-hint">WALK FORWARD ↑</div>
   <a-scene
-    room-manager="active: hub"
+    room-manager="active: timeline"
     fog="type: exponential; color: #E8E8E8; density: 0.012"
     vr-mode-ui="enabled: true"
     light="defaultLightsEnabled: false"
@@ -54,7 +54,7 @@
     ></a-plane>
 
     <!-- Camera rig -->
-    <a-entity id="rig" position="0 0 0">
+    <a-entity id="rig" position="0 0 4">
       <a-entity
         id="camera"
         camera
@@ -84,61 +84,6 @@
       <a-entity id="right-hand" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
     </a-entity>
 
-    <!-- Hub room (default) -->
-    <a-entity id="hub" room="hub" spawn="0 0 0">
-      <!-- Brutalist title slab -->
-      <a-plane position="0 3.8 -4" width="8" height="1.2" color="#1a1a1a"></a-plane>
-      <a-text
-        value="ICE DATA EXPLORER"
-        position="0 4 -3.99"
-        align="center"
-        color="#ECF0F1"
-        width="8"
-        font="monoid"
-      ></a-text>
-      <a-text
-        value="VR EXPERIENCE"
-        position="0 3.5 -3.99"
-        align="center"
-        color="#95A5A6"
-        width="4"
-        font="monoid"
-      ></a-text>
-
-      <!-- Portals — red, white, blue -->
-      <a-entity portal="target: landscape; label: Data Landscape; color: #B22234"
-                position="-4.3 1.1 -2.5" rotation="0 35 0"></a-entity>
-
-      <a-entity portal="target: timeline; label: Timeline Walk; color: #F5F5F5"
-                position="-1.5 1.1 -4.8" rotation="0 12 0"></a-entity>
-
-      <a-entity portal="target: globe; label: Security Feed; color: #3C3B6E"
-                position="1.5 1.1 -4.8" rotation="0 -12 0"></a-entity>
-
-      <a-entity portal="target: footage; label: Raid Footage; color: #B22234"
-                position="4.3 1.1 -2.5" rotation="0 -35 0"></a-entity>
-    </a-entity>
-
-    <!-- Room: Data Landscape -->
-    <a-entity id="room-landscape" room="landscape" spawn="0 0 5" visible="false">
-      <!-- Data terrain (title built by component) -->
-      <a-entity data-terrain position="0 0 0"></a-entity>
-
-      <!-- Return portal -->
-      <a-entity portal="target: hub; label: Back to Hub; color: #333333"
-                position="0 1.1 8" rotation="0 180 0"></a-entity>
-    </a-entity>
-
-    <!-- Room: Security Feed (was Facility Globe) -->
-    <a-entity id="room-globe" room="globe" spawn="0 0 5" visible="false">
-      <!-- Monitors container (populated by globe.js) -->
-      <a-entity id="security-monitors"></a-entity>
-
-      <!-- Return portal -->
-      <a-entity portal="target: hub; label: Back to Hub; color: #333333"
-                position="0 1.1 8" rotation="0 180 0"></a-entity>
-    </a-entity>
-
     <!-- Room: Timeline Walk -->
     <a-entity id="room-timeline" room="timeline" spawn="0 0 2" visible="false">
       <a-entity id="timeline-segments"></a-entity>
@@ -148,53 +93,6 @@
                 position="0 1.1 4" rotation="0 180 0"></a-entity>
     </a-entity>
 
-    <!-- Room: Raid Footage -->
-    <a-entity id="room-footage" room="footage" spawn="0 0 0" visible="false">
-      <!-- Content warning gate -->
-      <a-entity content-gate="room: footage" position="0 1.6 -2"></a-entity>
-
-      <!-- Brutalist title slab -->
-      <a-plane position="0 3.5 0" width="5" height="0.8" color="#1a1a1a"></a-plane>
-      <a-text
-        value="RAID FOOTAGE"
-        position="0 3.6 0.01"
-        align="center"
-        color="#ECF0F1"
-        width="5"
-        font="monoid"
-      ></a-text>
-      <a-text
-        value="DOCUMENTED ENFORCEMENT OPERATIONS"
-        position="0 3.25 0.01"
-        align="center"
-        color="#95A5A6"
-        width="2.5"
-        font="monoid"
-      ></a-text>
-
-      <!-- Video panels in a ring — 5m radius, 60deg apart, all at eye level -->
-      <a-entity video-panel="title: Operation Metro Surge — Workplace Raid; date: 2026-01-15; location: Minneapolis, MN; statLabel: Agents deployed; statValue: 3,000; source: DHS; trust: govt"
-                position="-4.3 1.8 -2.5" rotation="0 60 0"></a-entity>
-
-      <a-entity video-panel="title: Senate Hearing — ICE Detention Deaths; date: 2026-02-18; location: Washington, DC; statLabel: Deaths (2025-26); statValue: 38+; source: Senate / PBS; trust: contested"
-                position="-2.5 1.8 -4.3" rotation="0 30 0"></a-entity>
-
-      <a-entity video-panel="title: Community Doc — Sanctuary City ICE Raid; date: 2026-01-22; location: Multiple Cities; statLabel: Sanctuary violations; statValue: 18+; source: The Appeal; trust: verified"
-                position="2.5 1.8 -4.3" rotation="0 -30 0"></a-entity>
-
-      <a-entity video-panel="title: GEO Group Earnings Call — Record Profits; date: 2026-02-25; location: Boca Raton, FL; statLabel: Projected 2026 revenue; statValue: $3B; source: GEO Group; trust: contested"
-                position="4.3 1.8 -2.5" rotation="0 -60 0"></a-entity>
-
-      <a-entity video-panel="title: ICE Air — Cross-Country Transfers; date: 2026-01-18; location: Multiple States; statLabel: GPS ankle monitors; statValue: 42,000+; source: ICE Air / BI Inc; trust: govt"
-                position="4.3 1.8 2.5" rotation="0 -120 0"></a-entity>
-
-      <a-entity video-panel="title: Fort Bliss Tent City — Detention Expansion; date: 2026-01-03; location: El Paso, TX; statLabel: Capacity (expanding); statValue: 13,500; source: The Appeal; trust: verified"
-                position="-4.3 1.8 2.5" rotation="0 120 0"></a-entity>
-
-      <!-- Exit portal (always visible) -->
-      <a-entity portal="target: hub; label: Exit to Hub; color: #333333"
-                position="0 1.1 4" rotation="0 180 0"></a-entity>
-    </a-entity>
   </a-scene>
 
   <script src="js/components/room-manager.js"></script>
