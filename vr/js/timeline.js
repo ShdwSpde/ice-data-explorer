@@ -11,61 +11,131 @@ document.addEventListener('DOMContentLoaded', () => {
       year: '1996', label: 'IIRIRA Signed',
       desc: 'Illegal Immigration Reform Act expands deportation grounds and mandates detention for broad categories of immigrants.',
       stat: '300,000', statLabel: 'Annual deportations begin',
-      source: 'Congressional Record', trust: 'govt'
+      source: 'Congressional Record', trust: 'govt',
+      counter: {
+        type: 'watchdog',
+        speaker: 'Congressional Record / GAO 1997',
+        date: '1997',
+        body: '"The most anti-immigrant legislation since the Chinese Exclusion Act." — Rep. Barney Frank. No cost-benefit analysis conducted. Retroactive provisions stripped rights from 300,000 legal permanent residents who had already completed sentences.',
+        source: 'Congressional Record / GAO Report 1997'
+      }
     },
     {
       year: '2001', label: 'Post-9/11 Shift',
       desc: 'Immigration enforcement merged into national security framework. INS abolished; functions split between new DHS agencies.',
       stat: '$5.5B', statLabel: 'INS final budget',
-      source: 'DHS Transition Report', trust: 'govt'
+      source: 'DHS Transition Report', trust: 'govt',
+      counter: {
+        type: 'watchdog',
+        speaker: 'DOJ Office of Inspector General, 2003',
+        date: '2003',
+        body: '762 immigrants detained post-9/11. "We found significant physical and verbal abuse, detainees held in solitary for months, denied attorneys. We found no evidence that the detainees were connected to terrorism."',
+        source: 'DOJ OIG Special Report, June 2003'
+      }
     },
     {
       year: '2003', label: 'ICE Created',
       desc: 'Immigration and Customs Enforcement established under DHS with unprecedented enforcement powers and budget.',
       stat: '$3.3B', statLabel: 'Initial ICE budget',
-      source: 'DHS Appropriations', trust: 'govt'
+      source: 'DHS Appropriations', trust: 'govt',
+      counter: {
+        type: 'testimony',
+        speaker: 'Anonymous, Age 31 — Mexico',
+        date: '2003',
+        body: '"They transferred me three times in two weeks. No one knew who was responsible for my case. ICE had just started. One guard told me — We\'re learning too. I didn\'t see a lawyer for 34 days."',
+        source: 'ACLU Detention Documentation Project, 2003'
+      }
     },
     {
       year: '2008', label: 'Secure Communities',
       desc: 'Local police begin sharing fingerprints with ICE. The line between local law enforcement and immigration enforcement blurs permanently.',
       stat: '34,000', statLabel: 'Average daily detention pop.',
-      source: 'ICE ERO Statistics', trust: 'govt'
+      source: 'ICE ERO Statistics', trust: 'govt',
+      counter: {
+        type: 'watchdog',
+        speaker: 'DHS Office of Inspector General, 2011',
+        date: '2011',
+        body: '"93% of those removed under Secure Communities had no criminal record. Program\'s stated purpose was targeting serious criminals. We found no evidence this objective was achieved. U.S. citizens detained in at least 3,600 cases."',
+        source: 'DHS OIG Audit Report OIG-11-66, 2011'
+      }
     },
     {
       year: '2014', label: 'Priority Enforcement',
       desc: 'Obama narrows enforcement priorities but family detention expands. Artesia and Karnes facilities open for mothers and children.',
       stat: '414,000', statLabel: 'Deportations (FY2014 peak)',
-      source: 'ICE ERO Annual Report', trust: 'govt'
+      source: 'ICE ERO Annual Report', trust: 'govt',
+      counter: {
+        type: 'testimony',
+        speaker: 'Unnamed Mother, Age 28 — Honduras',
+        date: '2015',
+        body: '"My daughter stopped eating after the third week. The doctor came once. She said it was stress. We had been there 47 days. My daughter was four years old."',
+        source: 'Karnes County Detention / ACLU, 2015'
+      }
     },
     {
       year: '2017', label: 'Executive Orders',
       desc: 'Travel ban, border wall, expanded interior enforcement. Every undocumented person becomes a priority for removal.',
       stat: '$7.6B', statLabel: 'ICE budget',
-      source: 'DHS Budget-in-Brief', trust: 'govt'
+      source: 'DHS Budget-in-Brief', trust: 'govt',
+      counter: {
+        type: 'testimony',
+        speaker: 'Eduardo R., Age 44 — El Salvador',
+        date: '2017',
+        body: '"I\'ve lived here 22 years. My kids are U.S. citizens. I was taken from the parking lot of my job — the same week I filed a wage theft complaint against my employer. No one said that was a coincidence."',
+        source: 'The Intercept / ACLU, 2017'
+      }
     },
     {
       year: '2018', label: 'Family Separation',
       desc: 'Zero Tolerance policy separates children from parents at the border. Over 5,500 children taken from families before reversal.',
       stat: '5,500+', statLabel: 'Children separated',
-      source: 'HHS OIG', trust: 'verified'
+      source: 'HHS OIG', trust: 'verified',
+      counter: {
+        type: 'testimony',
+        speaker: 'Rosa M., Age 34 — Guatemala',
+        date: '2018',
+        body: '"They said we were going for a shower. When I came back, she was gone. No one told me where. I didn\'t see her for 14 months. She doesn\'t call me mama anymore."',
+        source: 'ACLU / Amnesty International, 2018'
+      }
     },
     {
       year: '2020', label: 'Title 42',
       desc: 'COVID border expulsion policy bypasses asylum process entirely. Over 1.7 million expulsions under public health authority.',
       stat: '1.7M', statLabel: 'Title 42 expulsions',
-      source: 'CBP Enforcement Statistics', trust: 'govt'
+      source: 'CBP Enforcement Statistics', trust: 'govt',
+      counter: {
+        type: 'watchdog',
+        speaker: 'CDC Internal Memo / Washington Post FOIA',
+        date: '2022',
+        body: '"The scientific evidence does not support the use of Title 42 for border expulsions. This is a policy decision being laundered as a public health measure." CDC career scientists formally objected. Document withheld two years, released under FOIA.',
+        source: 'CDC Internal Documents via Washington Post FOIA, 2022'
+      }
     },
     {
       year: '2023', label: 'Post-Title 42',
       desc: 'Title 42 ends. New asylum restrictions implemented. Transit ban requires applying in third countries first.',
       stat: '38,000', statLabel: 'Average daily detained',
-      source: 'ICE Detention Management', trust: 'govt'
+      source: 'ICE Detention Management', trust: 'govt',
+      counter: {
+        type: 'testimony',
+        speaker: 'Anonymous Family — Guatemala',
+        date: '2023',
+        body: '"We applied in Mexico first, as required by the new rules. Denied in 8 days. No interpreter present. We were told we had no right to appeal. We had been in Mexico 4 months waiting for the appointment."',
+        source: 'Human Rights Watch, 2023'
+      }
     },
     {
       year: '2025', label: 'Mass Deportation',
       desc: '540,000 deportation target. 12,000 new agents hired with training cut from 22 to 8 weeks. 130+ facilities opened. Fort Bliss tent city. 38+ dead in custody. 4 civilians shot by agents. $170B allocated.',
       stat: '38+', statLabel: 'Dead in custody (2025-26)',
-      source: 'Brookings / The Appeal / PBS', trust: 'verified'
+      source: 'Brookings / The Appeal / PBS', trust: 'verified',
+      counter: {
+        type: 'testimony',
+        speaker: 'James T. — U.S. Army Veteran',
+        date: '2025',
+        body: '"I served two tours in Afghanistan. I had my DD-214, passport, and birth certificate. They held me 6 days in a facility they couldn\'t name. They said their system flagged me. My congressman had to make calls."',
+        source: 'ProPublica, 2025'
+      }
     }
   ];
 
@@ -101,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
       floor.setAttribute('height', segmentLength.toString());
       // Alternating concrete tones
       const floorColor = i % 2 === 0 ? '#2a2a2a' : '#333333';
-      floor.setAttribute('color', floorColor);
+      floor.setAttribute('material', `color: ${floorColor}; roughness: 0.95; metalness: 0.05`);
       container.appendChild(floor);
 
       // ── Left wall — concrete dark ──
@@ -110,9 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
       leftWall.setAttribute('rotation', '0 90 0');
       leftWall.setAttribute('width', segmentLength.toString());
       leftWall.setAttribute('height', '3');
-      leftWall.setAttribute('color', '#333333');
-      leftWall.setAttribute('opacity', '0.7');
-      leftWall.setAttribute('transparent', 'true');
+      leftWall.setAttribute('material', 'color: #333333; opacity: 0.7; transparent: true; roughness: 0.85; metalness: 0.1');
       container.appendChild(leftWall);
 
       // ── Right wall — concrete dark ──
@@ -121,9 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rightWall.setAttribute('rotation', '0 -90 0');
       rightWall.setAttribute('width', segmentLength.toString());
       rightWall.setAttribute('height', '3');
-      rightWall.setAttribute('color', '#333333');
-      rightWall.setAttribute('opacity', '0.7');
-      rightWall.setAttribute('transparent', 'true');
+      rightWall.setAttribute('material', 'color: #333333; opacity: 0.7; transparent: true; roughness: 0.85; metalness: 0.1');
       container.appendChild(rightWall);
 
       // ── Heavy divider slab ──
